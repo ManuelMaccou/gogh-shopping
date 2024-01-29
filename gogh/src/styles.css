@@ -1,0 +1,254 @@
+.navigation {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+    padding-right: 30px;
+    background-color: #f8f8f8;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links li {
+    margin-right: 20px;
+}
+
+.nav-links li:last-child {
+    margin-right: 0;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #333;
+}
+
+.homepage-container {
+    text-align: center;
+    padding: 20px;
+    margin: auto;
+}
+
+.title {
+    font-size: 80px;
+    color: rgb(0, 0, 0);
+    margin-bottom: 1rem;
+}
+
+.description {
+    max-width: 800px;
+    font-size: 20px;
+    color: rgb(0, 0, 0);
+    margin-bottom: 40px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.image-container {
+    margin: 20px 0;
+}
+
+.homepage-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.get-started-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.get-started-button:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .description {
+        font-size: 0.9rem;
+    }
+
+    .get-started-button {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+}
+
+.logout-container {
+    display: flex;
+    align-items: center;
+}
+
+.logout-container button {
+    padding: 5px 10px;
+    background-color: #e0e0e0;
+    border: none;
+    cursor: pointer;
+}
+
+.logout-container button:hover {
+    background-color: #d0d0d0;
+}
+
+.form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.form-section {
+    flex: 1;
+    margin-right: 20px;
+}
+
+.form-box {
+    width: 300px;
+    padding: 20px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    background: white;
+}
+
+.product-form-box {
+    padding: 20px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    background: white;
+}
+
+.product-form-section {
+    width: 40%;
+    margin-right: 20px;
+}
+
+.product-image {
+    width: 40%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 20px;
+}
+
+.form-box .form-logo {
+    max-width: 100px;
+    margin-bottom: 20px;
+}
+
+.form-box h2 {
+    margin-bottom: 20px;
+}
+
+.form-box input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+}
+
+.form-box button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.form-box button:hover {
+    background-color: #0056b3;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input[type="text"],
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+}
+
+.product-form button {
+    background: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.confirmation-message {
+    margin-top: 20px;
+    color: green;
+}
+
+.submit-product-container {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.products-section {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-details {
+    flex-grow: 1;
+}
+
+.products-list {
+    margin-top: 30px;
+}
+
+.product-card {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.shareable-url-section {
+    margin-top: 20px;
+}
+
+.shareable-url-section input[type="text"] {
+    width: 70%;
+    margin-right: 10px;
+}
