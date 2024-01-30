@@ -1,0 +1,18 @@
+{
+    "build": {
+        "builder": "NIXPACKS",
+        "nixpacksPlan": {
+            "phases": {
+                "setup": {
+                    "aptPkgs": [
+                        "uuid-dev"
+                    ]
+                }
+            }
+        }
+    },
+    "deploy": {
+        "numReplicas": 1,
+        "restartPolicyType": "NEVER"
+    }
+}
