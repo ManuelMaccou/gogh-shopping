@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js",
-    "build": "npm run build"
+    "start": "babel-node app.js",
+    "build": "babel . --out-dir dist"
   },
   "author": "Manuel Maccou",
   "license": "ISC",
