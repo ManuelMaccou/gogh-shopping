@@ -43,8 +43,8 @@ router.post('/', auth, async (req, res) => {
                 <meta property="fc:frame" content="vNext" />
                 <meta name="fc:frame:post_url" content="${process.env.BASE_URL}/api/frames/frame/${uniqueId}">
                 <meta property="fc:frame:image" content="${product.ogImage}">
-                <meta property="fc:frame:button:1" content="next" />
-                <meta property="fc:frame:button:2" content="prev" />
+                <meta property="fc:frame:button:1" content="prev" />
+                <meta property="fc:frame:button:2" content="next" />
             </head>
         </html>
         `;
