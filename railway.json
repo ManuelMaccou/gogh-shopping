@@ -5,6 +5,7 @@
             "phases": {
                 "setup": {
                     "aptPkgs": [
+                        "fontconfig",
                         "uuid-dev"
                     ]
                 }
