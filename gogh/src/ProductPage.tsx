@@ -30,7 +30,7 @@ function ProductPage() {
 
     const handleProductClick = (url: string) => {
         // Redirect to the product's URL
-        window.open(url, '_blank'); // Opens in a new tab
+        window.open(url, '_blank');
     };
 
     return (
