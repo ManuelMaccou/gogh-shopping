@@ -73,22 +73,6 @@
     background-color: #0056b3;
 }
 
-/* Responsive styles */
-@media (max-width: 768px) {
-    .title {
-        font-size: 1.5rem;
-    }
-
-    .description {
-        font-size: 0.9rem;
-    }
-
-    .get-started-button {
-        font-size: 14px;
-        padding: 8px 16px;
-    }
-}
-
 .logout-container {
     display: flex;
     align-items: center;
@@ -114,7 +98,6 @@
 
 .form-section {
     flex: 1;
-    margin-right: 20px;
 }
 
 .form-box {
@@ -134,11 +117,6 @@
     border-radius: 10px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     background: white;
-}
-
-.product-form-section {
-    width: 40%;
-    margin-right: 20px;
 }
 
 .product-image {
@@ -200,6 +178,35 @@
     box-sizing: border-box;
 }
 
+.confirmation-message {
+    margin-top: 20px;
+    color: green;
+}
+
+.submit-product-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 30px;
+    padding: 20px;
+}
+
+.products-section {
+    width: 700px;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.product-form-section {
+    width: 700px;
+    min-width: 300px;
+}
+
 .product-form button {
     background: #007bff;
     color: white;
@@ -208,24 +215,6 @@
     border-radius: 5px;
     cursor: pointer;
 }
-
-.confirmation-message {
-    margin-top: 20px;
-    color: green;
-}
-
-.submit-product-container {
-    display: flex;
-    justify-content: center;
-    padding: 20px;
-}
-
-.products-section {
-    width: 40%;
-    display: flex;
-    flex-direction: column;
-}
-
 .product-details {
     flex-grow: 1;
 }
@@ -238,10 +227,6 @@
     display: flex;
     align-items: center;
     margin-bottom: 20px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .shareable-url-section {
@@ -251,4 +236,38 @@
 .shareable-url-section input[type="text"] {
     width: 70%;
     margin-right: 10px;
+}
+
+@media (max-width: 768px) {
+    .title {
+        font-size: 40px;
+    }
+
+    .description {
+        font-size: 24px;
+    }
+
+    .get-started-button {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .submit-product-container {
+        flex-direction: column;
+        padding: 10px;
+        margin: 10px;
+    }
+
+    .product-form-section {
+        width: 100%;
+        
+    }
+
+    .product-form-box, .products-section {
+        max-width: 100%;
+    }
+
+    .form-group label, .form-group input, .form-group textarea {
+        font-size: smaller; /* Adjust font size for smaller screens */
+    }
 }

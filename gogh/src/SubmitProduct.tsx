@@ -160,16 +160,7 @@ function SubmitProduct() {
                     <div className="product-form-box">
                         <h2>Submit New Product</h2>
                         <form onSubmit={onSubmit} className="product-form">
-                            <div className="form-group">
-                                <label htmlFor="title">Title:</label>
-                                <input 
-                                    type="text" 
-                                    name="title" 
-                                    value={title} 
-                                    onChange={onChange} 
-                                    required 
-                                />
-                            </div>
+
                             <div className="form-group">
                                 <label htmlFor="description">Description:</label>
                                 <textarea 
@@ -234,7 +225,6 @@ function SubmitProduct() {
                         <div className="product-card" key={product.title}>
                             {product.image && <img src={product.image} alt={product.title} className="product-image"/>}
                                 <div className="product-details">
-                                    <h3>{product.title}</h3>
                                     <p>{product.description}</p>
                                 </div>
                         </div>
