@@ -41,7 +41,7 @@ router.post('/', auth, async (req, res) => {
                 <meta property="og:url" content="${product.url}">
                 <meta property="og:image" content="${product.image}">
                 <meta property="fc:frame" content="vNext" />
-                <meta name="fc:frame:post_url" content="${process.env.REACT_APP_BACKEND_URL}/api/frames/frame/${uniqueId}">
+                <meta name="fc:frame:post_url" content="${process.env.BASE_URL}/api/frames/frame/${uniqueId}">
                 <meta property="fc:frame:image" content="${product.ogImage}">
                 <meta property="fc:frame:button:1" content="next" />
                 <meta property="fc:frame:button:2" content="prev" />
@@ -59,7 +59,7 @@ router.post('/', auth, async (req, res) => {
             { new: true }
         );
 
-        res.json({ url: `${process.env.REACT_APP_BACKEND_URL}/product-page/${uniqueId}` });
+        res.json({ url: `${process.env.BASE_URL}/product-page/${uniqueId}` });
     } catch (err) {
         console.error('Error in generate-page:', err);
         res.status(500).send('Server error');

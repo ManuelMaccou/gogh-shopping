@@ -33,10 +33,10 @@ router.post('/frame/:uniqueId', async (req, res) => {
         let productIndex = parseInt(req.query.index) || 0;
 
         // Increment or decrement index based on the button index
-        if (buttonIndex === 1) { // 'Next' button
-            productIndex++;
-        } else if (buttonIndex === 2 && productIndex > 0) { // 'Prev' button
+        if (buttonIndex === 1) { // 'prev' button
             productIndex--;
+        } else if (buttonIndex === 2 && productIndex > 0) { // 'next' button
+            productIndex++;
         }
 
         const { product, username } = await getProductAndUser(uniqueId, productIndex);
@@ -55,7 +55,7 @@ router.post('/frame/:uniqueId', async (req, res) => {
 
 // Helper function to generate frame HTML
 function generateFrameHtml(product, username, uniqueId, productIndex) {
-    const postUrl = `${process.env.REACT_APP_BACKEND_URL}/api/frames/frame/${uniqueId}?index=${productIndex}`;
+    const postUrl = `${process.env.BASE_URL}/api/frames/frame/${uniqueId}?index=${productIndex}`;
 
     return `
         <!DOCTYPE html>
@@ -68,8 +68,8 @@ function generateFrameHtml(product, username, uniqueId, productIndex) {
                 <meta property="fc:frame" content="vNext" />
                 <meta property="fc:frame:post_url" content="${postUrl}">
                 <meta property="fc:frame:image" content="${product.ogImage}" />
-                <meta property="fc:frame:button:1" content="next" />
-                <meta property="fc:frame:button:2" content="prev" />
+                <meta property="fc:frame:button:1" content="prev" />
+                <meta property="fc:frame:button:2" content="next" />
             </head>
         </html>
     `;

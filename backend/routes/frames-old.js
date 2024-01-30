@@ -59,7 +59,7 @@ function generateFrameHtml(product, username, uniqueId) {
             <head>
             <title>${username}'s Products</title>
                 <meta name="description" content="${username}'s products">
-                <meta name="fc:frame:post_url" content="${process.env.REACT_APP_BACKEND_URL}/api/frames/frame/${uniqueId}">
+                <meta name="fc:frame:post_url" content="${process.env.BASE_URL}/api/frames/frame/${uniqueId}">
                 <meta property="fc:frame" content="vNext" />
                 <meta property="fc:frame:image" content="${product.ogImage}" />
                 <meta property="fc:frame:button:1" content="next" />

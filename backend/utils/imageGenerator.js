@@ -1,6 +1,4 @@
-const { createCanvas, loadImage, registerFont } = require('canvas');
-
-// registerFont('path-to-your-font.ttf', { family: 'CustomFont' });
+const { createCanvas, loadImage } = require('canvas');
 
 function isValidUrl(string) {
     try {
@@ -11,9 +9,37 @@ function isValidUrl(string) {
     }
 }
 
-function calculateAspectRatioFit(srcWidth, srcHeight, maxWidth, maxHeight) {
-    var ratio = Math.min(maxWidth / srcWidth, maxHeight / srcHeight);
-    return { width: srcWidth*ratio, height: srcHeight*ratio };
+function calculateContainAspectRatio(srcWidth, srcHeight, maxWidth, maxHeight) {
+    const srcRatio = srcWidth / srcHeight;
+    return srcRatio > 1 ? { width: maxWidth, height: maxWidth / srcRatio } : { width: maxHeight * srcRatio, height: maxHeight };
+}
+
+function wrapText(context, text, x, y, maxWidth, lineHeight, maxLines, measureOnly = false) {
+    const words = text.split(' ');
+    let line = '';
+    let lineCount = 0;
+    let totalHeight = 0;
+
+    for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + ' ';
+        const metrics = context.measureText(testLine);
+        const testWidth = metrics.width;
+        if (testWidth > maxWidth && n > 0) {
+            if (lineCount === maxLines) break;
+            if (!measureOnly) context.fillText(line, x, y + totalHeight);
+            line = words[n] + ' ';
+            totalHeight += lineHeight;
+            lineCount++;
+        } else {
+            line = testLine;
+        }
+    }
+    if (lineCount < maxLines) {
+        if (!measureOnly) context.fillText(line, x, y + totalHeight);
+        totalHeight += lineHeight;
+    }
+
+    return totalHeight; // Return the total height of the text
 }
 
 async function generateProductImage(product) {
@@ -22,45 +48,33 @@ async function generateProductImage(product) {
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext('2d');
 
-    // Background
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, width, height);
 
     try {
-        // Load and draw product image
         if (product.image && isValidUrl(product.image)) {
             const productImage = await loadImage(product.image);
-            // Calculate the size to maintain aspect ratio
-            const imageSize = calculateAspectRatioFit(
-                productImage.width,
-                productImage.height,
-                200, // Maximum image width
-                200  // Maximum image height
-            );
-            // Draw the image with the new size
-            ctx.drawImage(productImage, 10, 10, imageSize.width, imageSize.height);
+            const imageSize = calculateContainAspectRatio(productImage.width, productImage.height, width * 0.5, height);
+            const xOffset = (width * 0.5 - imageSize.width) / 2;
+            const yOffset = (height - imageSize.height) / 2;
+            ctx.drawImage(productImage, xOffset, yOffset, imageSize.width, imageSize.height);
         }
 
-        // Set font style for title and description
-        // If registered a custom font above, use 'CustomFont' as the family
         ctx.font = '24px Arial';
         ctx.fillStyle = '#333';
-        ctx.textBaseline = 'top';
-        ctx.fillText(product.title, 220, 50); // Adjust position as needed
+        const descriptionLineHeight = 24;
+        const maxDescriptionLines = 12;
+        const textX = width * 0.5 + 20;
+        // Measure the height without drawing
+        const descriptionTextHeight = wrapText(ctx, product.description, textX, 0, width - (textX + 20), descriptionLineHeight, maxDescriptionLines, true);
+        // Calculate the Y position for centered text
+        const descriptionY = (height - descriptionTextHeight) / 2;
+        // Draw the text
+        wrapText(ctx, product.description, textX, descriptionY, width - (textX + 20), descriptionLineHeight, maxDescriptionLines);
 
-        ctx.font = '16px Arial';
-        ctx.fillStyle = '#666';
-        ctx.fillText(product.description, 220, 100, width - 240); // Wrap text at the edge of the canvas
-
-        // Convert canvas to Data URL
         const dataUrl = canvas.toDataURL();
-        console.log("image url:", dataUrl)
 
-        // To save the image to a file instead, do the following
-        // const buffer = canvas.toBuffer('image/png');
-        // fs.writeFileSync('path-to-save-image.png', buffer);
-
-        return dataUrl; // This will give a base64 encoded image
+        return dataUrl;
     } catch (error) {
         console.error('Error in generating image:', error);
         throw error;
