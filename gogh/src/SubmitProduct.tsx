@@ -123,6 +123,7 @@ function SubmitProduct() {
                 
             try {
 
+                console.log('Backend URL:', process.env.REACT_APP_BACKEND_URL);
                 const productWithUser = {
                     ...productData,
                     user: userId,

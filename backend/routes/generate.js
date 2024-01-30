@@ -30,7 +30,7 @@ router.post('/', auth, async (req, res) => {
             console.log("No products found for user:", userId);
             return res.status(404).send('No products found');
         }
-const product = products[0];
+        const product = products[0];
 
         const pageHtml = `
         <!DOCTYPE html>
@@ -42,7 +42,7 @@ const product = products[0];
                 <meta property="og:image" content="${product.image}">
                 <meta property="fc:frame" content="vNext" />
                 <meta name="fc:frame:post_url" content="${process.env.REACT_APP_BACKEND_URL}/api/frames/frame/${uniqueId}">
-                <meta property="fc:frame:image" content="data:image/png;base64,${product.ogImage}">
+                <meta property="fc:frame:image" content="${product.ogImage}">
                 <meta property="fc:frame:button:1" content="next" />
                 <meta property="fc:frame:button:2" content="prev" />
             </head>

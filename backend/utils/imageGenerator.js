@@ -54,6 +54,7 @@ async function generateProductImage(product) {
 
         // Convert canvas to Data URL
         const dataUrl = canvas.toDataURL();
+        console.log("image url:", dataUrl)
 
         // To save the image to a file instead, do the following
         // const buffer = canvas.toBuffer('image/png');
