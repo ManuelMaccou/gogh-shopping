@@ -6,7 +6,7 @@
                 "setup": {
                     "aptPkgs": [
                         "fontconfig",
-                        "uuid-dev"
+                        "libuuid1"
                     ]
                 }
             }
