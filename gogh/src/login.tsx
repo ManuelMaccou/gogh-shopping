@@ -36,7 +36,6 @@ function Login() {
     return (
         <div className="form-container">
             <div className="form-box">
-                <img src="/path-to-your-logo.png" alt="Logo" className="form-logo"/>
                 <h2>Login</h2>
                 <form onSubmit={onSubmit}>
                     <div className="form-group">

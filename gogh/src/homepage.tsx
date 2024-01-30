@@ -19,8 +19,6 @@ const HomePage = () => {
                 Promote your NFTs, products, and services directly in the feed.
             </p>
             <div className="image-container">
-                {/* Placeholder for image */}
-                <img src="placeholder-image-url" alt="Placeholder" className="homepage-image" />
             </div>
             <button onClick={handleGetStartedClick} className="get-started-button">
                 Get Started
