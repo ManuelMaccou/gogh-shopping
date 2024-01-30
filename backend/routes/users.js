@@ -46,18 +46,14 @@ router.post('/login', async (req, res) => {
 });
 
 router.get('/get-page-id', auth, async (req, res) => {
-    console.log("Get Page ID route hit");
     try {
         const userId = req.user;
-        console.log("User ID:", userId);
 
         const user = await User.findById(userId);
-        console.log("Found User:", user);
         if (!user || !user.pageId) {
             console.log("Page ID not found for User:", user);
             return res.status(404).json({ message: "Page ID not found" });
         }
-        console.log("Page ID for User:", user.pageId);
         res.json({ pageId: user.pageId });
     } catch (err) {
         console.error('Error in get-page-id:', err);

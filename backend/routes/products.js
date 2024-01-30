@@ -9,11 +9,9 @@ const generateProductImage = require('../utils/imageGenerator');
 // POST route to add a new product
 router.post('/add', auth, async (req, res) => {
   try {
-    console.log('Received product data:', req.body);
     const productData = req.body;
 
     const generatedImage = await generateProductImage(productData);
-    console.log('Generated image:', generatedImage);
 
     productData.ogImage = generatedImage;
 
@@ -22,7 +20,6 @@ router.post('/add', auth, async (req, res) => {
     await newProduct.save();
 
     // Extract user ID from JWT token
-    console.log(req.headers.authorization)
     const token = req.headers.authorization.split(' ')[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.userId;

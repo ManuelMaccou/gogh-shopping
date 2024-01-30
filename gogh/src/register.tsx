@@ -23,7 +23,6 @@ function Register() {
                 `${process.env.REACT_APP_BACKEND_URL}/api/users/register`, 
                 formData
             );
-            console.log(response.data);
             const loginResponse = await axios.post(
                 `${process.env.REACT_APP_BACKEND_URL}/api/users/login`, 
                 { email, password }

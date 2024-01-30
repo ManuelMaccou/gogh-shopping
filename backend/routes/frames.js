@@ -27,17 +27,6 @@ router.get('/frame/:uniqueId', async (req, res) => {
 });
 
 router.post('/frame/:uniqueId', async (req, res) => {
-    console.log('Received Frames POST request with body:', req.body);
-
-    // Optionally, write the body to a file
-    const fs = require('fs');
-    fs.writeFile('postRequestBody.json', JSON.stringify(req.body, null, 2), err => {
-        if (err) {
-            console.error('Error writing file:', err);
-        } else {
-            console.log('Successfully wrote request body to file');
-        }
-    });
     
     try {
         const uniqueId = req.params.uniqueId;

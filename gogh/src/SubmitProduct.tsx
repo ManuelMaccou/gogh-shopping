@@ -123,23 +123,19 @@ function SubmitProduct() {
                 
             try {
 
-                console.log('Backend URL:', process.env.REACT_APP_BACKEND_URL);
                 const productWithUser = {
                     ...productData,
                     user: userId,
                 };
-                console.log('Submitting product:', productWithUser);
 
                 const response = await axios.post(
                     `${process.env.REACT_APP_BACKEND_URL}/api/products/add`, 
                     productWithUser,
                     { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
                 );
-                console.log('Product submission response:', response.data);
 
                 setConfirmationMessage('Product successfully added!');
                 setProducts([...products, response.data]);
-                console.log(response.data);
                 // Reset the form fields
                 setProductData({
                     title: '',
