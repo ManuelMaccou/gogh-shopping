@@ -28,7 +28,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/generate-page', generatePage);
 app.use('/api/frames', frameRoutes);
-app.use('/product-page', productPage);
+app.use('/api/product-page', productPage);
 
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'gogh', 'build', 'index.html'));
