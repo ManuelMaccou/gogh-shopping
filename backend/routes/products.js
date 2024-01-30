@@ -50,17 +50,22 @@ router.get('/user-products', auth, async (req, res) => {
 
 router.get('/by-page/:pageId', async (req, res) => {
   try {
-      const pageId = req.params.pageId;
-      const user = await User.findOne({ pageId: pageId }).exec();
-      if (!user) {
-          return res.status(404).send('User not found');
-      }
+    console.log(`Fetching products for page ID: ${req.params.pageId}`);
+    const pageId = req.params.pageId;
+    const user = await User.findOne({ pageId: pageId }).exec();
+    if (!user) {
+      console.log(`User not found for page ID: ${pageId}`);
+      return res.status(404).send('User not found');
+    }
 
-      const products = await Product.find({ user: user._id }).exec();
-      res.json(products);
+    console.log(`User found: ${user._id}`);
+    const products = await Product.find({ user: user._id }).exec();
+
+    console.log(`Number of products found: ${products.length}`);
+    res.json(products);
   } catch (error) {
-      console.error('Error in GET /api/products/by-page/:pageId:', error);
-      res.status(500).send('Server error');
+    console.error('Error in GET /api/products/by-page/:pageId:', error);
+    res.status(500).send('Server error');
   }
 });
 
