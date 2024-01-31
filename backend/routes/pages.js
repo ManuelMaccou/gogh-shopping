@@ -5,14 +5,26 @@ const User = require('../models/user');
 router.get('/:uniqueId', async (req, res) => {
     try {
         const uniqueId = req.params.uniqueId;
-        const user = await User.findOne({ pageId: uniqueId });
+        console.log("Requested Unique ID:", uniqueId);
 
-        if (!user || !user.pageHtml) {
-            return res.status(404).send('Page not found');
+        const user = await User.findOne({ pageId: uniqueId });
+        console.log("User found:", user);
+        console.log("username", user.username);
+
+        if (!user) {
+            console.log("No user found for Unique ID:", uniqueId);
+            return res.status(404).send('User not found');
+        }
+
+        // Check if pageHtml is specifically undefined or null
+        if (user.pageHtml === undefined || user.pageHtml === null) {
+            console.log("User found but no pageHtml for Unique ID:", uniqueId);
+            return res.status(404).send('Page HTML not found');
         }
 
         res.send(user.pageHtml);
     } catch (err) {
+        console.error('Error in GET /:uniqueId', err);
         res.status(500).send('Server error');
     }
 });

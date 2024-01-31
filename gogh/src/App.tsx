@@ -4,7 +4,7 @@ import HomePage from './homepage';
 import Register from './register';
 import Login from './login';
 import SubmitProduct from './SubmitProduct';
-import ProductPage from './ProductPage';
+//import ProductPage from './ProductPage';
 
 const App: React.FC = () => {
 
@@ -16,7 +16,6 @@ const App: React.FC = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route path="/submit-product" element={<SubmitProduct />} />
-            <Route path="/product-page/:uniqueId" element={<ProductPage />} />
             </Routes>
         </div>
     );

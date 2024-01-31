@@ -19,8 +19,9 @@ const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     products: [{ type: Schema.Types.ObjectId, ref: 'product' }],
+    pageHtml: { type: String, required: true },
     pageId: { type: String },
-    framesMeta: { type: framesMetaSchema, default: () => ({}) }
+    // framesMeta: { type: framesMetaSchema, default: () => ({}) }
 });
 
 userSchema.pre('save', async function(next) {

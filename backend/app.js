@@ -7,7 +7,7 @@ const productRoutes = require('./routes/products');
 const userRoutes = require('./routes/users');
 const generatePage = require('./routes/generate');
 const frameRoutes = require('./routes/frames');
-// const productPage = require('./routes/pages');
+const productPage = require('./routes/pages');
 const metadataRoutes = require('./routes/metadata');
 
 
@@ -30,7 +30,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/generate-page', generatePage);
 app.use('/api/frames', frameRoutes);
-// app.use('/api/product-page', productPage);
+app.use('/product-page', productPage);
 app.use('/api', metadataRoutes);
 
 app.get('*', (req, res) => {
