@@ -38,7 +38,8 @@ router.post('/', auth, async (req, res) => {
                 <meta property="fc:frame:image" content="${product.ogImage}">
                 <meta property="fc:frame:button:1" content="prev" />
                 <meta property="fc:frame:button:2" content="next" />
-                <meta property="fc:frame:button:3:post_redirect" content="More info" />
+                <meta property="fc:frame:button:3" content="More info" />
+                <meta property="fc:frame:button:3:action" content="post_redirect" />
             </head>
         </html>
         `;

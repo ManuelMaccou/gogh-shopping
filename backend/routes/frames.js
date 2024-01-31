@@ -83,7 +83,8 @@ function generateFrameHtml(product, username, framesMeta, uniqueId, productIndex
                 <meta property="fc:frame:image" content="${framesMeta.fcFrameImage}" />
                 <meta property="fc:frame:button:1:" content="${framesMeta.fcFrameButton1}" />
                 <meta property="fc:frame:button:2:" content="${framesMeta.fcFrameButton2}" />
-                <meta property="fc:frame:button:3:post_redirect" content="More info" />
+                <meta property="fc:frame:button:3" content="More info" />
+                <meta property="fc:frame:button:3:action" content="post_redirect" />
             </head>
         </html>
     `;
