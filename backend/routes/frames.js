@@ -33,7 +33,7 @@ router.post('/frame/:uniqueId', async (req, res) => {
         const buttonIndex = req.body.untrustedData.buttonIndex;
         let productIndex = parseInt(req.query.index) || 0;
 
-        // Increment or decrement index based on the button index
+        // Increment or decrement index based on the index
         if (buttonIndex === 1) { // 'prev' button
             productIndex--;
         } else if (buttonIndex === 2) { // 'next' button
