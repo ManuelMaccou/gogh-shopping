@@ -31,6 +31,16 @@ router.post('/frame/:uniqueId', async (req, res) => {
         const buttonIndex = req.body.untrustedData.buttonIndex;
         let productIndex = parseInt(req.query.index) || 0;
 
+        // Handling the 'More Info' button
+        if (buttonIndex === 3) {
+            if (product && product.url) {
+                res.setHeader('Location', product.url);
+                return res.status(302).send();
+            } else {
+                return res.status(404).send('Redirect URL not found');
+            }
+        }
+
         // Increment or decrement index based on the index
         if (buttonIndex === 1) { // 'prev' button
             productIndex--;
@@ -71,8 +81,9 @@ function generateFrameHtml(product, username, framesMeta, uniqueId, productIndex
                 <meta property="fc:frame" content="${framesMeta.fcFrame}" />
                 <meta property="fc:frame:post_url" content="${postUrl}">
                 <meta property="fc:frame:image" content="${framesMeta.fcFrameImage}" />
-                <meta property="fc:frame:button:1" content="${framesMeta.fcFrameButton1}" />
-                <meta property="fc:frame:button:2" content="${framesMeta.fcFrameButton2}" />
+                <meta property="fc:frame:button:1:" content="${framesMeta.fcFrameButton1}" />
+                <meta property="fc:frame:button:2:" content="${framesMeta.fcFrameButton2}" />
+                <meta property="fc:frame:button:3:post_redirect" content="More info" />
             </head>
         </html>
     `;
