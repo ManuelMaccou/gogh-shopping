@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     products: [{ type: Schema.Types.ObjectId, ref: 'product' }],
-    pageHtml: { type: String, required: true },
+    pageHtml: { type: String },
     pageId: { type: String },
     // framesMeta: { type: framesMetaSchema, default: () => ({}) }
 });
