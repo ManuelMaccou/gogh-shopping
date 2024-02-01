@@ -71,6 +71,16 @@ async function generateProductImage(product) {
         const descriptionY = (height - descriptionTextHeight) / 2;
         // Draw the text
         wrapText(ctx, product.description, textX, descriptionY, width - (textX + 20), descriptionLineHeight, maxDescriptionLines);
+        
+        // Only draw the price if it's defined and not an empty string
+        if (product.price && product.price.trim() !== "") {
+            const pricePaddingRight = 20;
+            const pricePaddingBottom = 20;
+            ctx.font = 'bold 24px Arial';
+            ctx.fillStyle = '#000';
+            ctx.textAlign = 'right';
+            ctx.fillText(product.price, width - pricePaddingRight, height - pricePaddingBottom);
+        }
 
         const dataUrl = canvas.toDataURL();
 

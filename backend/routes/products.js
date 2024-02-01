@@ -9,13 +9,15 @@ const generateProductImage = require('../utils/imageGenerator');
 // POST route to add a new product
 router.post('/add', auth, async (req, res) => {
   try {
+
     const productData = req.body;
-
     const generatedImage = await generateProductImage(productData);
-
     productData.ogImage = generatedImage;
-
     const newProduct = new Product(productData);
+
+    if (productData.description && productData.description.length > 300) {
+      return res.status(400).json({ message: "Description must be 300 characters or less" });
+    }
 
     await newProduct.save();
 

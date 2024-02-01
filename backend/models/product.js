@@ -6,7 +6,7 @@ const ProductSchema = new mongoose.Schema({
     image: String,
     ogImage: String,
     url: String,
-    shippingDetails: String,
+    price: String,
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 });
 

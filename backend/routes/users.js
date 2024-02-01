@@ -16,7 +16,7 @@ router.post('/register', async (req, res) => {
         user = new User({ email, password, username });
         await user.save();
 
-        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '48h' });
         res.status(201).json({ token });
     } catch (err) {
         console.error(err.message);
@@ -37,7 +37,7 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: "Invalid Credentials" });
         }
 
-        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '48h' });
         res.json({ token });
     } catch (err) {
         console.error(err.message);

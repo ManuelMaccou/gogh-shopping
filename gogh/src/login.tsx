@@ -10,6 +10,8 @@ function Login() {
         password: ''
     });
 
+    const [errorMessage, setErrorMessage] = useState('');
+
     const { email, password } = formData;
 
     const onChange = (e: ChangeEvent<HTMLInputElement>) => 
@@ -24,11 +26,19 @@ function Login() {
             );
             localStorage.setItem('token', response.data.token);
             navigate('/submit-product');
+
         } catch (err: unknown) {
             if (axios.isAxiosError(err) && err.response) {
-                console.error(err.response.data);
+                const message = err.response.data.message;
+                if (message.toLowerCase().includes("invalid credentials")) {
+                    setErrorMessage("Invalid login credentials.");
+                } else {
+                    setErrorMessage("An unexpected error occurred. Please refresh the page and try again. If it happens again, please let me know on Warpcast @manuelmaccou.eth.");
+                }
+                console.error(err.response.data); // for debugging
             } else if (err instanceof Error) {
-                console.error('An error occurred:', err.message);
+                console.error('An error occurred during login:', err.message); // for debugging
+                setErrorMessage("An unexpected error occurred. Please refresh the page and try again. If it happens again, please let me know on Warpcast @manuelmaccou.eth.");
             }
         }
     };
@@ -37,6 +47,7 @@ function Login() {
         <div className="form-container">
             <div className="form-box">
                 <h2>Login</h2>
+                {errorMessage && <div className="error-message">{errorMessage}</div>}
                 <form onSubmit={onSubmit}>
                     <div className="form-group">
                         <label htmlFor="email">Email:</label><br />

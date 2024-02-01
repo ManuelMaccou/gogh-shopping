@@ -3,21 +3,20 @@ import axios, { AxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './styles.css';
 
-
 interface ProductData {
-    title: string;
     description: string;
     image: string;
     url: string;
-    shippingDetails: string;
+    price: string;
 }
 
 interface Product {
+    _id: string;
     title: string;
     description: string;
     image: string;
     url: string;
-    shippingDetails: string;
+    price: string;
 }
 
 function parseJwt(token: string) {
@@ -34,23 +33,24 @@ function parseJwt(token: string) {
 
 function SubmitProduct() {
     const navigate = useNavigate();
+    const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) {
-            navigate('/login'); // Redirect to login if no token
+            setErrorMessage("Please log in to continue");
+            navigate('/login');
         }
     }, [navigate]);
 
     const [productData, setProductData] = useState<ProductData>({
-        title: '',
         description: '',
         image: '',
         url: '',
-        shippingDetails: ''
+        price: ''
     });
 
-    const { title, description, image, url, shippingDetails } = productData;
+    const { description, image, url, price } = productData;
 
     const [products, setProducts] = useState<Product[]>([]);
     const [confirmationMessage, setConfirmationMessage] = useState('');
@@ -69,9 +69,17 @@ function SubmitProduct() {
             } catch (err) {
                 if (axios.isAxiosError(err) && err.response?.status === 404) {
                     console.log('No products found for user');
-                    // Optionally set a state here to show a message on the UI
+
+                } else if (axios.isAxiosError(err) && err.response) {
+                    if (err.response.status === 401) {
+                      setErrorMessage('Session has expired. Please log in again.');
+                    } else {
+                        console.error('An error occurred while submitting a product:', err.message);
+                        setErrorMessage("An unexpected error occurred. Please refresh the page and try again. If it happens again, please let me know on Warpcast @manuelmaccou.eth.");
+                    }
                 } else {
                     console.error('Error fetching products:', err);
+                    setErrorMessage("An unexpected error occurred. Please refresh the page and try again. If it happens again, please let me know on Warpcast @manuelmaccou.eth.");
                 }
             }
         };
@@ -85,7 +93,10 @@ function SubmitProduct() {
     // Function to fetch the pageId and generate the shareable URL
     const fetchPageIdAndGenerateUrl = useCallback(async () => {
         const token = localStorage.getItem('token');
-        if (!token) return;
+        if (!token) {
+            setErrorMessage("Your session has expired. Please capture any content you need and log in again.");
+            return;
+        }
     
         try {
             await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/generate-page`, {}, {
@@ -99,7 +110,7 @@ function SubmitProduct() {
             setShareableUrl(`${process.env.REACT_APP_BACKEND_URL}/product-page/${pageId}`);
             setIsPageGenerated(true);
         } catch (err) {
-            console.error('Error during page generation or fetching page ID:', err);
+            console.error('Error occured while generating the frame:', err);
             if (axios.isAxiosError(err)) {
                 console.error('Axios error response:', err.response);
             }
@@ -114,12 +125,17 @@ function SubmitProduct() {
             const token = localStorage.getItem('token');
 
             if (!token) {
-                console.error("No token found. User is not logged in.");
-                navigate('/login');
+                setErrorMessage("You are not logged in. Please log in to submit a product.");
                 return;
             }
-                const decodedToken = parseJwt(token);
-                const userId = decodedToken?.userId;
+
+            if (description.length > 300) {
+                setErrorMessage("Description must be 300 characters or less.");
+                return;
+            }
+
+            const decodedToken = parseJwt(token);
+            const userId = decodedToken?.userId;
                 
             try {
 
@@ -138,19 +154,26 @@ function SubmitProduct() {
                 setProducts([...products, response.data]);
                 // Reset the form fields
                 setProductData({
-                    title: '',
                     description: '',
                     image: '',
                     url: '',
-                    shippingDetails: ''
+                    price: ''
                 });
-            } catch (err: unknown) {
-                if (axios.isAxiosError(err)) {
-                    const axiosError = err as AxiosError;
-                    console.error(axiosError.response?.data || axiosError.message);
-                } else if (err instanceof Error) {
-                    console.error('An error occurred:', err.message);
+            } catch (err) {
+                if (axios.isAxiosError(err) && err.response) {
+                    // Handle specific server response errors
+                    if (err.response.status === 400) {
+                        setErrorMessage("Failed to submit product. Please check your input.");
+                    } else if (err.response.status === 401) {
+                        setErrorMessage("Your session has expired. Please capture any content you need and log in again.");
+                    } else {
+                        setErrorMessage("An unexpected error occurred. Please refresh the page and try again. If it happens again, please let me know on Warpcast @manuelmaccou.eth.");
+                    }
+                } else {
+                    // Handle any other errors
+                    setErrorMessage("An unexpected error occurred. Please refresh the page and try again. If it happens again, please let me know on Warpcast @manuelmaccou.eth.");
                 }
+                console.error('Error during product submission:', err);
             }
         };
 
@@ -167,12 +190,13 @@ function SubmitProduct() {
                                     name="description" 
                                     value={description} 
                                     onChange={onChange} 
-                                    required 
+                                    required
+                                    maxLength={300}
                                 />
+                                <span className="field-hint">Max 300 characters</span>
                             </div>
                             <div className="form-group">
                                 <label htmlFor="image">Image URL:</label>
-                                <span>Must be .jpg, .jpeg, or .png</span>
                                 <input 
                                     type="text" 
                                     name="image" 
@@ -191,29 +215,32 @@ function SubmitProduct() {
                                 />
                             </div>
                             <div className="form-group">
-                                <label htmlFor="shippingDetails">Shipping Details:</label>
+                                <label htmlFor="price">Price:</label>
                                 <textarea 
-                                    name="shippingDetails" 
-                                    value={shippingDetails} 
+                                    name="price" 
+                                    value={price} 
                                     onChange={onChange}
                                 />
                             </div>
-                            <button type="submit">Submit</button>
+                            <button type="submit">Add product</button>
+                            {errorMessage && <p className="error-message">{errorMessage}</p>}
                         </form>
                         {confirmationMessage && <div className="confirmation-message">{confirmationMessage}</div>}
                 
                         {isPageGenerated && shareableUrl && (
                             <div className="shareable-url-section">
-                                <h3>Product Page URL</h3>
-                                <p>Your product page is ready! Share this URL on Farcaster:</p>
+                                <h3>Frame URL</h3>
+                                <p>Your showcase is ready! Post this URL on Farcaster:</p>
                                 <input type="text" value={shareableUrl} readOnly />
                                 <button onClick={() => navigator.clipboard.writeText(shareableUrl)}>Copy URL</button>
                             </div>
                         )}
                         {!isPageGenerated && (
                             <div className="shareable-url-section">
-                                <p>Once you submit all of your poducts, click the button below to generate a URL and share it on Farcaster.</p>
-                                <button onClick={fetchPageIdAndGenerateUrl}>Generate Product Frame</button>
+                                <p>Once you submit all of your poducts, click the button below to generate your frame showcasing your products.</p>
+                                <div className="generate-button-container">
+                                    <button onClick={fetchPageIdAndGenerateUrl} type="submit">Generate Product Frame</button>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -222,10 +249,13 @@ function SubmitProduct() {
                 <div className="products-section">
                     <h2>Your products</h2>
                     {products.map(product => (
-                        <div className="product-card" key={product.title}>
+                        <div className="product-card" key={product._id}>
                             {product.image && <img src={product.image} alt={product.title} className="product-image"/>}
                                 <div className="product-details">
                                     <p>{product.description}</p>
+                                </div>
+                                <div className="product-price">
+                                    <p>{product.price}</p>
                                 </div>
                         </div>
                     ))}

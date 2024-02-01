@@ -11,6 +11,8 @@ function Register() {
         password: ''
     });
 
+    const [errorMessage, setErrorMessage] = useState('');
+
     const { username, email, password } = formData;
 
     const onChange = (e: ChangeEvent<HTMLInputElement>) => 
@@ -31,9 +33,18 @@ function Register() {
             navigate('/submit-product');
         } catch (err: unknown) {
             if (axios.isAxiosError(err) && err.response) {
-                console.error(err.response.data);
+                const message = err.response.data.message;
+                if (message.toLowerCase().includes("user already exists")) {
+                    setErrorMessage("Username or email already in use.");
+                } else if (message.toLowerCase().includes("invalid credentials")) {
+                    setErrorMessage("Invalid registration credentials.");
+                } else {
+                    setErrorMessage("An unexpected error occurred. Please refresh the page and try again. If it happens again, please let me know on Warpcast @manuelmaccou.eth.");
+                }
+                console.error(err.response.data); // for debugging
             } else if (err instanceof Error) {
-                console.error('An error occurred:', err.message);
+                console.error('An error occurred during registration:', err.message); // for debugging
+                setErrorMessage("An unexpected error occurred. Please refresh the page and try again. If it happens again, please let me know on Warpcast @manuelmaccou.eth.");
             }
         }
     };
@@ -42,6 +53,7 @@ function Register() {
         <div className="form-container">
             <div className="form-box">
                 <h2>Register</h2>
+                {errorMessage && <div className="error-message">{errorMessage}</div>}
                 <form onSubmit={onSubmit}>
                     <div className="form-group">
                         <label htmlFor="username">Username:</label><br />

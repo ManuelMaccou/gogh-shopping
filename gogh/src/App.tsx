@@ -4,7 +4,6 @@ import HomePage from './homepage';
 import Register from './register';
 import Login from './login';
 import SubmitProduct from './SubmitProduct';
-//import ProductPage from './ProductPage';
 
 const App: React.FC = () => {
 
