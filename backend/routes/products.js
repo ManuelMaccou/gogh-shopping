@@ -36,6 +36,42 @@ router.post('/add', auth, async (req, res) => {
   }
 });
 
+router.post('/delete', auth, async (req, res) => {
+  try {
+      const { productIds } = req.body;
+      const userId = req.user;
+
+      // Verify ownership and delete products
+      const products = await Product.find({ _id: { $in: productIds }, user: userId });
+      if (products.length !== productIds.length) {
+          return res.status(403).json({ message: "Unauthorized action" });
+      }
+
+      await Product.deleteMany({ _id: { $in: productIds } });
+      res.json({ message: 'Products deleted successfully' });
+  } catch (error) {
+      console.error('Error in DELETE /api/products/delete:', error);
+      res.status(500).send('Server error');
+  }
+});
+
+// Endpoint to handle redirection
+router.get('/redirect/:productId', async (req, res) => {
+  try {
+      const productId = req.params.productId;
+      const product = await Product.findById(productId);
+
+      if (product && product.url) {
+          return res.redirect(product.url);
+      } else {
+          return res.status(404).send('Product or URL not found');
+      }
+  } catch (err) {
+      console.error('Error in GET /redirect/:productId', err);
+      res.status(500).send('Internal Server Error');
+  }
+});
+
 // Fetch user's products
 router.get('/user-products', auth, async (req, res) => {
     try {
@@ -52,18 +88,18 @@ router.get('/user-products', auth, async (req, res) => {
 
 router.get('/by-page/:pageId', async (req, res) => {
   try {
-    console.log(`Fetching products for page ID: ${req.params.pageId}`);
+    // console.log(`Fetching products for page ID: ${req.params.pageId}`);
     const pageId = req.params.pageId;
     const user = await User.findOne({ pageId: pageId }).exec();
     if (!user) {
-      console.log(`User not found for page ID: ${pageId}`);
+      // console.log(`User not found for page ID: ${pageId}`);
       return res.status(404).send('User not found');
     }
 
-    console.log(`User found: ${user._id}`);
+    // console.log(`User found: ${user._id}`);
     const products = await Product.find({ user: user._id }).exec();
 
-    console.log(`Number of products found: ${products.length}`);
+    // console.log(`Number of products found: ${products.length}`);
     res.json(products);
   } catch (error) {
     console.error('Error in GET /api/products/by-page/:pageId:', error);

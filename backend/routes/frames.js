@@ -8,12 +8,12 @@ const Product = require('../models/product');
 async function getProductAndUser(uniqueId, productIndex) {
     const user = await User.findOne({ pageId: uniqueId }).populate('products');
     if (!user) {
-        console.error(`User not found with pageId: ${uniqueId}`);
+        // console.error(`User not found with pageId: ${uniqueId}`);
         return { product: null, username: null };
     }
 
     if (!user.products || user.products.length === 0 || !user.products[productIndex]) {
-        console.error(`Product not found or out of index range for user: ${uniqueId}`);
+        // console.error(`Product not found or out of index range for user: ${uniqueId}`);
         return { product: null, username: null };
     }
 
@@ -33,7 +33,7 @@ router.get('/frame/:uniqueId', async (req, res) => {
 
 router.post('/frame/:uniqueId', async (req, res) => {
     try {
-        console.log('Request Body:', req.body);
+        // console.log('Request Body:', req.body);
 
         const uniqueId = req.params.uniqueId;
 
@@ -64,18 +64,19 @@ router.post('/frame/:uniqueId', async (req, res) => {
 
         // Handling the 'More Info' button
         if (buttonIndex === 3) {
+            const redirectUrl = `${process.env.BASE_URL}/api/products/redirect/${product._id}`;
             if (product.url) {
-                res.setHeader('Location', product.url);
-                console.log('Response Headers (before sending):', res.getHeaders());
+                res.setHeader('Location', redirectUrl);
+                // console.log('Response Headers (before sending):', res.getHeaders());
                 return res.status(302).send();
             } else {
                 return res.status(404).send('Redirect URL not found');
             }
         }
 
-        console.log('Response Headers (before sending):', res.getHeaders());
+        // console.log('Response Headers (before sending):', res.getHeaders());
         res.status(200).send(generateFrameHtml(product, username, uniqueId, productIndex));
-        console.log('Response Headers (after sending):', res.getHeaders());
+        // console.log('Response Headers (after sending):', res.getHeaders());
     } catch (err) {
         console.error('Error in POST /frame/:uniqueId', err);
         res.status(500).send('Internal Server Error');
