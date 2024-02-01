@@ -7,7 +7,13 @@ const Product = require('../models/product');
 // Get a specific product by index for a user
 async function getProductAndUser(uniqueId, productIndex) {
     const user = await User.findOne({ pageId: uniqueId }).populate('products');
-    if (!user || !user.products || user.products.length === 0 || !user.products[productIndex]) {
+    if (!user) {
+        console.error(`User not found with pageId: ${uniqueId}`);
+        return { product: null, username: null };
+    }
+
+    if (!user.products || user.products.length === 0 || !user.products[productIndex]) {
+        console.error(`Product not found or out of index range for user: ${uniqueId}`);
         return { product: null, username: null };
     }
 
@@ -27,35 +33,49 @@ router.get('/frame/:uniqueId', async (req, res) => {
 
 router.post('/frame/:uniqueId', async (req, res) => {
     try {
+        console.log('Request Body:', req.body);
+
         const uniqueId = req.params.uniqueId;
+
         const buttonIndex = req.body.untrustedData.buttonIndex;
         let productIndex = parseInt(req.query.index) || 0;
+        // const { product, username } = await getProductAndUser(uniqueId, productIndex);
+
+        // Get the user and their products
+        const user = await User.findOne({ pageId: uniqueId }).populate('products');
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+        
+        // Determine the total number of products
+        const totalProducts = user.products.length;
+
+        // Increment or decrement index based on the button clicked
+        if (buttonIndex === 1) { // 'prev' button
+            productIndex = (productIndex - 1 + totalProducts) % totalProducts;
+        } else if (buttonIndex === 2) { // 'next' button
+            productIndex = (productIndex + 1) % totalProducts;
+        }
+
         const { product, username } = await getProductAndUser(uniqueId, productIndex);
+        if (!product) {
+            return res.status(404).send('Product not found');
+        }
 
         // Handling the 'More Info' button
         if (buttonIndex === 3) {
-            if (product && product.url) {
+            if (product.url) {
                 res.setHeader('Location', product.url);
+                console.log('Response Headers (before sending):', res.getHeaders());
                 return res.status(302).send();
             } else {
                 return res.status(404).send('Redirect URL not found');
             }
         }
 
-        // Increment or decrement index based on the index
-        if (buttonIndex === 1) { // 'prev' button
-            productIndex--;
-        } else if (buttonIndex === 2) { // 'next' button
-            productIndex++;
-        }
-
-        
-
-        if (!product) {
-            return res.status(404).send('Product not found');
-        }
-
+        console.log('Response Headers (before sending):', res.getHeaders());
         res.status(200).send(generateFrameHtml(product, username, uniqueId, productIndex));
+        console.log('Response Headers (after sending):', res.getHeaders());
     } catch (err) {
         console.error('Error in POST /frame/:uniqueId', err);
         res.status(500).send('Internal Server Error');
