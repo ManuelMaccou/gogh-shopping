@@ -77,8 +77,8 @@ function generateFrameHtml(product, username, uniqueId, productIndex) {
                 <meta property="fc:frame" content="vNext" />
                 <meta property="fc:frame:post_url" content="${postUrl}">
                 <meta property="fc:frame:image" content="${product.ogImage}" />
-                <meta property="fc:frame:button:1:" content="prev" />
-                <meta property="fc:frame:button:2:" content="next" />
+                <meta property="fc:frame:button:1" content="prev" />
+                <meta property="fc:frame:button:2" content="next" />
                 <meta property="fc:frame:button:3" content="More info" />
                 <meta property="fc:frame:button:3:action" content="post_redirect" />
             </head>
