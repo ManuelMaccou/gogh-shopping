@@ -398,7 +398,6 @@ input[type="checkbox"] {
 
     .submit-product-container {
         flex-direction: column;
-        flex-wrap: wrap;
         padding: 10px;
         margin: 10px;
     }
