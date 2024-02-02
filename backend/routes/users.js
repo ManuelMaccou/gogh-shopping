@@ -61,4 +61,27 @@ router.get('/get-page-id', auth, async (req, res) => {
     }
 });
 
+router.get('/check-page-status', auth, async (req, res) => {
+    try {
+        const userId = req.user;
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        // Check if the user already has a pageId and pageHtml
+        const hasPage = user.pageId && user.pageHtml ? true : false;
+        const response = {
+            hasPage: hasPage,
+            pageId: user.pageId ? user.pageId : null,
+        };
+
+        res.json(response);
+    } catch (err) {
+        console.error('Error in /check-page-status:', err);
+        res.status(500).send('Server error');
+    }
+});
+
 module.exports = router;

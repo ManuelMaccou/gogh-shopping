@@ -19,6 +19,7 @@ function Login() {
 
     const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setErrorMessage('');
         try {
             const response = await axios.post(
                 `${process.env.REACT_APP_BACKEND_URL}/api/users/login`, 
@@ -27,18 +28,21 @@ function Login() {
             localStorage.setItem('token', response.data.token);
             navigate('/submit-product');
 
-        } catch (err: unknown) {
-            if (axios.isAxiosError(err) && err.response) {
-                const message = err.response.data.message;
-                if (message.toLowerCase().includes("invalid credentials")) {
+        } catch (err) {
+            if (axios.isAxiosError(err)) {
+                // Extracting the message safely using optional chaining and a default value
+                const message = err.response?.data?.message || "An error occurred.";
+                if (typeof message === 'string' && message.toLowerCase().includes("invalid credentials")) {
                     setErrorMessage("Invalid login credentials.");
                 } else {
-                    setErrorMessage("An unexpected error occurred. Please refresh the page and try again. If it happens again, please let me know on Warpcast @manuelmaccou.eth.");
+                    // Use the message from the error response if it's a string, otherwise, a generic message
+                    setErrorMessage(typeof message === 'string' ? message : "An unexpected error occurred. Please try again.");
                 }
-                console.error(err.response.data); // for debugging
-            } else if (err instanceof Error) {
-                console.error('An error occurred during login:', err.message); // for debugging
-                setErrorMessage("An unexpected error occurred. Please refresh the page and try again. If it happens again, please let me know on Warpcast @manuelmaccou.eth.");
+                console.error('Error data:', err.response?.data); // for debugging
+            } else {
+                // This could be a network error or something else not related to Axios
+                console.error('An error occurred during login:', err); // for debugging
+                setErrorMessage("An unexpected network error occurred. Please check your internet connection and try again.");
             }
         }
     };

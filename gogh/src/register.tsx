@@ -20,6 +20,7 @@ function Register() {
 
     const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setErrorMessage('');
         try {
             const response = await axios.post(
                 `${process.env.REACT_APP_BACKEND_URL}/api/users/register`, 
@@ -31,20 +32,32 @@ function Register() {
             );
             localStorage.setItem('token', loginResponse.data.token);
             navigate('/submit-product');
-        } catch (err: unknown) {
-            if (axios.isAxiosError(err) && err.response) {
-                const message = err.response.data.message;
-                if (message.toLowerCase().includes("user already exists")) {
-                    setErrorMessage("Username or email already in use.");
-                } else if (message.toLowerCase().includes("invalid credentials")) {
-                    setErrorMessage("Invalid registration credentials.");
+        } catch (err) {
+            if (axios.isAxiosError(err)) {
+                if (err.response) {
+                    // Check if the response data has a 'message' property
+                    const message = err.response.data.message || err.response.data;
+                    if (typeof message === 'string') {
+                        if (message.toLowerCase().includes("user already exists")) {
+                            setErrorMessage("Username or email already in use.");
+                        } else if (message.toLowerCase().includes("invalid credentials")) {
+                            setErrorMessage("Invalid registration credentials.");
+                        } else {
+                            setErrorMessage("An unexpected error occurred. Please refresh the page and try again. If it happens again, please let me know on Warpcast @manuelmaccou.");
+                        }
+                    } else {
+                        // If message isn't a string, log the error and set a generic message
+                        console.error('Error response data is not a string:', err.response.data);
+                        setErrorMessage("An unexpected error occurred. Please try again.");
+                    }
                 } else {
-                    setErrorMessage("An unexpected error occurred. Please refresh the page and try again. If it happens again, please let me know on Warpcast @manuelmaccou.eth.");
+                    // If there is no response, it's likely a network error
+                    setErrorMessage("A network error occurred. Please check your internet connection and try again.");
                 }
-                console.error(err.response.data); // for debugging
             } else if (err instanceof Error) {
-                console.error('An error occurred during registration:', err.message); // for debugging
-                setErrorMessage("An unexpected error occurred. Please refresh the page and try again. If it happens again, please let me know on Warpcast @manuelmaccou.eth.");
+                // Handle non-Axios errors
+                console.error('An error occurred during registration:', err.message);
+                setErrorMessage("An unexpected network error occurred. Please check your internet connection and try again.");
             }
         }
     };

@@ -54,8 +54,12 @@ function SubmitProduct() {
 
     const [products, setProducts] = useState<Product[]>([]);
     const [confirmationMessage, setConfirmationMessage] = useState('');
+    const [deletionErrorMessage, setDeletionErrorMessage] = useState('');
+    const [deletionConfirmationMessage, setDeletionConfirmationMessage] = useState('');
+
 
     useEffect(() => {
+        // Grab products to display on page
         const fetchProducts = async () => {
             try {
                 const token = localStorage.getItem('token');
@@ -67,24 +71,42 @@ function SubmitProduct() {
                 });
                 setProducts(response.data);
             } catch (err) {
-                if (axios.isAxiosError(err) && err.response?.status === 404) {
-                    console.log('No products found for user');
-
-                } else if (axios.isAxiosError(err) && err.response) {
-                    if (err.response.status === 401) {
-                      setErrorMessage('Session has expired. Please log in again.');
+                if (axios.isAxiosError(err)) {
+                    const message = err.response?.data?.message || "An error occurred.";
+                    if (err.response?.status === 404) {
+                        console.log('No products found for user');
+                    } else if (err.response?.status === 401) {
+                        setErrorMessage('Session has expired. Please log in again.');
                     } else {
-                        console.error('An error occurred while submitting a product:', err.message);
-                        setErrorMessage("An unexpected error occurred. Please refresh the page and try again. If it happens again, please let me know on Warpcast @manuelmaccou.eth.");
+                        console.error('Error fetching products:', message);
                     }
                 } else {
                     console.error('Error fetching products:', err);
-                    setErrorMessage("An unexpected error occurred. Please refresh the page and try again. If it happens again, please let me know on Warpcast @manuelmaccou.eth.");
                 }
             }
         };
-
         fetchProducts();
+
+        // Function to check if the user already has a pageId and pageHtml
+        const checkPageGenerationStatus = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) throw new Error("No token found");
+
+                const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/check-page-status`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                // Example response structure: { hasPage: true, pageId: "uniqueId" }
+                if (response.data.hasPage) {
+                    setIsPageGenerated(true);
+                    setShareableUrl(`${process.env.REACT_APP_BACKEND_URL}/product-page/${response.data.pageId}`);
+                }
+            } catch (err) {
+                console.error('Error checking page generation status:', err);
+            }
+        };
+        checkPageGenerationStatus();
     }, []);
 
     const [shareableUrl, setShareableUrl] = useState('');
@@ -110,18 +132,73 @@ function SubmitProduct() {
             setShareableUrl(`${process.env.REACT_APP_BACKEND_URL}/product-page/${pageId}`);
             setIsPageGenerated(true);
         } catch (err) {
-            console.error('Error occured while generating the frame:', err);
             if (axios.isAxiosError(err)) {
-                console.error('Axios error response:', err.response);
+                const message = err.response?.data?.message || "An error occurred.";
+                console.error(message);
+                setErrorMessage("An error occurred. Please refresh and try again. If the issue persists, feel free to DM me on Warpcast @manuelmaccou.");
+            } else {
+                console.error('Error occurred while generating the frame:', err);
+                setErrorMessage("An error occurred. Please refresh and try again. If the issue persists, feel free to DM me on Warpcast @manuelmaccou.");
             }
         }
     }, []);
+
+    // States and functions from DeleteProducts
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [selectedProducts, setSelectedProducts] = useState(new Set());
+
+    const toggleEditMode = () => setIsEditMode(!isEditMode);
+
+    const handleProductSelect = (productId: string) => {
+        const newSelectedProducts = new Set(selectedProducts);
+        if (newSelectedProducts.has(productId)) {
+            newSelectedProducts.delete(productId);
+        } else {
+            newSelectedProducts.add(productId);
+        }
+        setSelectedProducts(newSelectedProducts);
+    };
+
+    const deleteSelectedProducts = async () => {
+        if (!window.confirm("Are you sure you want to delete the selected products?")) {
+            return; // Abort if the user cancels
+        }
+
+        try {
+            const productIds = Array.from(selectedProducts);
+            const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/products/delete`, 
+                                { productIds }, 
+                                { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+            
+            if (response.status === 200) {
+                setDeletionConfirmationMessage("Products successfully deleted.");
+                setProducts(products.filter(product => !selectedProducts.has(product._id)));
+                setSelectedProducts(new Set());
+                setIsEditMode(false);
+            } else {
+                throw new Error("Deletion was not successful. Please refresh the page and try again.");
+            }
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                const message = error.response?.data?.message || "An error occurred.";
+                console.error('Error deleting products:', message);
+                setDeletionErrorMessage("Failed to delete products. Please try again later.");
+            } else {
+                console.error('Error deleting products:', error);
+                setDeletionErrorMessage("Failed to delete products. Please try again later.");
+            }
+        }
+    };
 
     const onChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
         setProductData({ ...productData, [e.target.name]: e.target.value });
 
         const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
             e.preventDefault();
+            setErrorMessage('');
+            setConfirmationMessage('');
+            setDeletionConfirmationMessage('');
+            setDeletionErrorMessage('');
             const token = localStorage.getItem('token');
 
             if (!token) {
@@ -160,20 +237,20 @@ function SubmitProduct() {
                     price: ''
                 });
             } catch (err) {
-                if (axios.isAxiosError(err) && err.response) {
-                    // Handle specific server response errors
-                    if (err.response.status === 400) {
-                        setErrorMessage("Failed to submit product. Please check your input.");
-                    } else if (err.response.status === 401) {
+                if (axios.isAxiosError(err)) {
+                    const message = err.response?.data?.message || "An error occurred.";
+                    if (err.response?.status === 400) {
+                        setErrorMessage("Failed to submit product. Please check your input URLs and try again.");
+                    } else if (err.response?.status === 401) {
                         setErrorMessage("Your session has expired. Please capture any content you need and log in again.");
                     } else {
-                        setErrorMessage("An unexpected error occurred. Please refresh the page and try again. If it happens again, please let me know on Warpcast @manuelmaccou.eth.");
+                        console.error('Error during product submission:', message);
+                        setErrorMessage("Failed to submit product. Please check your input URLs and try again.");
                     }
                 } else {
-                    // Handle any other errors
-                    setErrorMessage("An unexpected error occurred. Please refresh the page and try again. If it happens again, please let me know on Warpcast @manuelmaccou.eth.");
+                    console.error('Error during product submission:', err);
+                    setErrorMessage("An unexpected error occurred. Please refresh the page and try again. If the issue persists, feel free to DM on Warpcast @manuelmaccou.");
                 }
-                console.error('Error during product submission:', err);
             }
         };
 
@@ -227,6 +304,8 @@ function SubmitProduct() {
                         </form>
                         {confirmationMessage && <div className="confirmation-message">{confirmationMessage}</div>}
                 
+
+                        {/* Conditionally display the shareable URL section */}
                         {isPageGenerated && shareableUrl && (
                             <div className="shareable-url-section">
                                 <h3>Frame URL</h3>
@@ -235,6 +314,8 @@ function SubmitProduct() {
                                 <button onClick={() => navigator.clipboard.writeText(shareableUrl)}>Copy URL</button>
                             </div>
                         )}
+
+                        {/* Display the 'Generate Product Frame' button only if the page has not been generated */}
                         {!isPageGenerated && (
                             <div className="shareable-url-section">
                                 <p>Once you submit all of your poducts, click the button below to generate your frame showcasing your products.</p>
@@ -246,24 +327,36 @@ function SubmitProduct() {
                     </div>
                 </div>
 
-                <div className="products-section">
-                    <h2>Your products</h2>
+                <div className={`products-section ${isEditMode ? 'edit-mode' : ''}`}>
+                    <h2>{isEditMode ? 'Select products to delete' : 'Frame preview'}</h2>
+                        <div className="deletion-buttons">
+                        {products.length > 0 && (
+                            <>
+                                <button className="edit-button" onClick={toggleEditMode}>{isEditMode ? 'Cancel' : 'Edit Products'}</button>
+                                {isEditMode && (
+                                    <button className="delete-button" onClick={deleteSelectedProducts}>Delete Selected</button>
+                                )}
+                            </>
+                        )}
+                        {deletionConfirmationMessage && <div className="confirmation-message">{deletionConfirmationMessage}</div>}
+                        {deletionErrorMessage && <div className="confirmation-message">{deletionErrorMessage}</div>}
+                    </div>
                     {products.map(product => (
-                        <div className="product-card" key={product._id}>
+                        <div 
+                            className={`product-card ${isEditMode && selectedProducts.has(product._id) ? 'selected' : 'deselected'}`}
+                            key={product._id}
+                            onClick={() => isEditMode && handleProductSelect(product._id)} // Only handle click in edit mode
+                        >
                             {product.image && <img src={product.image} alt={product.title} className="product-image"/>}
-                                <div className="product-details">
-                                    <p>{product.description}</p>
-                                </div>
-                                <div className="product-price">
-                                    <p>{product.price}</p>
-                                </div>
+                            <div className="product-details">
+                                <p>{product.description}</p>
+                            </div>
+                            <div className="product-price">
+                                <p>{product.price}</p>
+                            </div>
                         </div>
                     ))}
                 </div>
-
-
-
-
             </div>
         );
     }
