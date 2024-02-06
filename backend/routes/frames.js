@@ -33,7 +33,7 @@ router.get('/frame/:uniqueId', async (req, res) => {
 
 router.post('/frame/:uniqueId', async (req, res) => {
     try {
-        // console.log('Request Body:', req.body);
+        console.log('Request Body:', req.body);
 
         const uniqueId = req.params.uniqueId;
 
