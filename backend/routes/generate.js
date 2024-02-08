@@ -5,16 +5,22 @@ const { v4: uuidv4 } = require('uuid');
 const auth = require('../middleware/auth');
 const Product = require('../models/product');
 const User = require('../models/user');
+const Store = require('../models/store');
 
 router.post('/', auth, async (req, res) => {
     try {
         const userId = req.user;
-
         const uniqueId = uuidv4();
 
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).send('User not found');
+        }
+
+        // Fetch the store associated with the user
+        const store = await Store.findOne({ storeAdmin: userId });
+        if (!store) {
+            return res.status(404).send('Store not found');
         }
 
         const username = user.username;
@@ -32,10 +38,10 @@ router.post('/', auth, async (req, res) => {
             <title>${username}'s Products</title>
                 <meta name="description" content="${username}'s products">
                 <meta property="og:url" content="${product.url}">
-                <meta property="og:image" content="${product.image}">
+                <meta property="og:image" content="${store.image}">
                 <meta property="fc:frame" content="vNext" />
                 <meta name="fc:frame:post_url" content="${process.env.BASE_URL}/api/frames/frame/${uniqueId}">
-                <meta property="fc:frame:image" content="${product.productFrame}">
+                <meta property="fc:frame:image" content="${store.image}">
                 <meta property="fc:frame:button:1" content="Start Shopping" />
             </head>
         </html>
