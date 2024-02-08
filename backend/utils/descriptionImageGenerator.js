@@ -4,7 +4,7 @@ const { createCanvas, loadImage } = require('canvas');
 
 async function GenerateDescriptionImage(productData) {
 
-    const backgroundImageUrl = 'files/frame_description_bg_dark.jpg';
+    const backgroundImageUrl = path.join(__dirname, '../files/frame_description_bg_dark.jpg');
     const background = await loadImage(backgroundImageUrl);
 
     const canvas = createCanvas(background.width, background.height);
