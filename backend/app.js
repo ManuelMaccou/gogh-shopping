@@ -9,7 +9,7 @@ const generatePage = require('./routes/generate');
 const frameRoutes = require('./routes/frames');
 const productPage = require('./routes/pages');
 const metadataRoutes = require('./routes/metadata');
-const productDb = require('./routes/productDb');
+// const productDb = require('./routes/productDb');
 const storeRoutes = require('./routes/stores');
 
 
@@ -33,7 +33,7 @@ app.use('/api/generate-page', generatePage);
 app.use('/api/frames', frameRoutes);
 app.use('/product-page', productPage);
 app.use('/api', metadataRoutes);
-app.use('/api/index-csv', productDb);
+// app.use('/api/index-csv', productDb);
 app.use('/api/stores', storeRoutes);
 
 app.get('*', (req, res) => {
