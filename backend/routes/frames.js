@@ -86,11 +86,10 @@ router.post('/frame/:uniqueId', async (req, res) => {
             if (buttonIndex === 2) {
                 frameType = 'descriptionFrame'
             }
-
-            // console.log('Response Headers (before sending):', res.getHeaders());
-            res.status(200).send(generateFrameHtml(product, username, uniqueId, productIndex, frameType));
-            // console.log('Response Headers (after sending):', res.getHeaders());
         }
+        // console.log('Response Headers (before sending):', res.getHeaders());
+        res.status(200).send(generateFrameHtml(product, username, uniqueId, productIndex, frameType));
+        // console.log('Response Headers (after sending):', res.getHeaders());
     } catch (err) {
         console.error('Error in POST /frame/:uniqueId', err);
         res.status(500).send('Internal Server Error');
