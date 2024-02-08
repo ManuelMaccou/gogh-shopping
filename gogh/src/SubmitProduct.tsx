@@ -47,8 +47,8 @@ function SubmitProduct() {
     const navigate = useNavigate();
     const [errorMessage, setErrorMessage] = useState('');
 
-    const maxChars = 700;
-    const maxLines = 10;
+    const maxChars = 500;
+    const maxLines = 7;
 
     const [charCount, setCharCount] = useState(0);
     const [charLimitExceeded, setCharLimitExceeded] = useState(false);
@@ -315,8 +315,8 @@ function SubmitProduct() {
                 return;
             }
 
-            if (description.length > 800) {
-                setErrorMessage("Description must be 800 characters or less.");
+            if (description.length > 500) {
+                setErrorMessage("Description must be 500 characters or less.");
                 return;
             }
 

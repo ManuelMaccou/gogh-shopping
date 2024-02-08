@@ -18,7 +18,7 @@ async function GenerateDescriptionImage(productData) {
 
     const textMarginHorizontal = 120; // Horizontal margin for text
     const maxWidth = canvas.width - 2 * textMarginHorizontal; // Effective max width for text
-    ctx.font = '46px Arial'; // Set font for text rendering
+    ctx.font = '26px Arial'; // Set font for text rendering
     ctx.fillStyle = 'white';
 
     // Function to process HTML nodes and extract text lines, including handling of <li> tags
@@ -62,7 +62,7 @@ async function GenerateDescriptionImage(productData) {
     Array.from(body.childNodes).forEach(processNode);
 
     // Calculate the starting Y position to center the text vertically
-    const lineHeight = 48; // Adjust line height based on font size
+    const lineHeight = 28; // Adjust line height based on font size
     const totalTextHeight = lines.length * lineHeight;
     let currentY = (canvas.height - totalTextHeight) / 2;
 
@@ -75,13 +75,13 @@ async function GenerateDescriptionImage(productData) {
     });
 
     // Price text
-    ctx.font = 'bold 44px Arial';
+    ctx.font = 'bold 32px Arial';
     ctx.fillStyle = 'white';
     ctx.textAlign = 'right';
     ctx.textBaseline = 'bottom';
 
     // Position for the price text: bottom right corner, with some margin
-    const priceMargin = 140; // Margin from the right and bottom edges
+    const priceMargin = 70; // Margin from the right and bottom edges
     const priceX = canvas.width - priceMargin;
     const priceY = canvas.height - priceMargin;
 
