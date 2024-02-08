@@ -4,22 +4,45 @@ const Product = require('../models/product');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const auth = require('../middleware/auth');
-const generateProductImage = require('../utils/imageGenerator');
+const generateProductImage = require('../utils/productImageGenerator');
+const generateDescriptionImage = require('../utils/descriptionImageGenerator');
 
 // POST route to add a new product
 router.post('/add', auth, async (req, res) => {
   try {
-
     const productData = req.body;
-    const generatedImage = await generateProductImage(productData);
-    productData.ogImage = generatedImage;
-    const newProduct = new Product(productData);
+    console.log("Received product data:", productData.image);
 
-    if (productData.description && productData.description.length > 300) {
-      return res.status(400).json({ message: "Description must be 300 characters or less" });
+    let generatedProductImage, generatedDescriptionImage;
+
+    try {
+      generatedProductImage = await generateProductImage(productData);
+      console.log("Generated Product Image URL:", generatedProductImage.substring(0, 30));
+    } catch (error) {
+      console.error("Error generating product image:", error);
+    } 
+
+    try {
+      generatedDescriptionImage = await generateDescriptionImage(productData);
+      console.log("Generated Description Image URL:", generatedDescriptionImage.substring(0, 30));
+    } catch (error) {
+      console.error("Error generating description image:", error);
     }
 
+    productData.productFrame = generatedProductImage;
+    productData.descriptionFrame = generatedDescriptionImage;
+
+    if (productData.productFrame && productData.descriptionFrame) {
+      console.log("Product data with product frame:", productData.productFrame.substring(0, 30));
+      console.log("Product data with description frame:", productData.descriptionFrame.substring(0, 30));
+    } else {
+      console.error("Product or description frame generation failed.");
+    }
+
+    const newProduct = new Product(productData);
+
     await newProduct.save();
+    console.log("New product saved:", newProduct.descriptionFrame.substring(0, 30));
 
     // Extract user ID from JWT token
     const token = req.headers.authorization.split(' ')[1];

@@ -35,11 +35,8 @@ router.post('/', auth, async (req, res) => {
                 <meta property="og:image" content="${product.image}">
                 <meta property="fc:frame" content="vNext" />
                 <meta name="fc:frame:post_url" content="${process.env.BASE_URL}/api/frames/frame/${uniqueId}">
-                <meta property="fc:frame:image" content="${product.ogImage}">
-                <meta property="fc:frame:button:1" content="prev" />
-                <meta property="fc:frame:button:2" content="next" />
-                <meta property="fc:frame:button:3" content="More info" />
-                <meta property="fc:frame:button:3:action" content="post_redirect" />
+                <meta property="fc:frame:image" content="${product.productFrame}">
+                <meta property="fc:frame:button:1" content="Start Shopping" />
             </head>
         </html>
         `;

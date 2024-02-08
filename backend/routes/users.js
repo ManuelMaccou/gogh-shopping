@@ -1,5 +1,6 @@
 const express = require('express');
 const User = require('../models/user');
+const Store = require('../models/store');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
@@ -13,7 +14,12 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: "User already exists" });
         }
 
-        user = new User({ email, password, username });
+        // Generate a unique merchant ID
+        const { nanoid } = await import('nanoid');
+        const merchantId = nanoid(6);
+        const fid = nanoid(6)
+
+        user = new User({ email, password, username, merchantId, fid });
         await user.save();
 
         const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '48h' });
@@ -81,6 +87,27 @@ router.get('/check-page-status', auth, async (req, res) => {
     } catch (err) {
         console.error('Error in /check-page-status:', err);
         res.status(500).send('Server error');
+    }
+});
+
+router.get('/check-merchant-status', auth, async (req, res) => {
+    const userId = req.user;
+    if (!userId) {
+        return res.status(401).json({ message: 'Unauthorized: Missing user ID in request.' });
+    }
+    
+    try {
+        const user = await User.findById(userId).select('fid');
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+        
+        const stores = await Store.find({ storeAdmin: userId });
+        const hasStore = stores.length > 0;
+        res.json({ success: true, hasStore, stores, fid: user.fid });
+    } catch (error) {
+        console.error("Error checking merchant status:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
     }
 });
 

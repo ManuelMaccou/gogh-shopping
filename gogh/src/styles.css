@@ -147,6 +147,23 @@ input[type="checkbox"] {
     background-color: #d0d0d0;
 }
 
+.create-store-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.create-store-box {
+    width: 300px;
+    padding: 20px;
+    margin-bottom: 140px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    background: white;
+}
+
 .form-container {
     display: flex;
     justify-content: center;
@@ -173,12 +190,76 @@ input[type="checkbox"] {
     margin-bottom: 15px;
 }
 
-.product-image {
-    width: 40%;
-    height: auto;
-    object-fit: cover;
+.product-card {
+    justify-content: space-between;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
     border-radius: 8px;
-    margin-right: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #FFFFFF;
+    transition: all 0.3s ease;
+  }
+
+.product-preview-card, .description-preview-card {
+    flex: 1;
+    margin: 0 10px;
+    width: 40%;
+}
+
+.product-frame, .description-frame {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.frame-preview {
+    width: 382px;
+    margin-bottom: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.frame-button {
+    background: #4f4f4f;
+    color: #FFFFFF;
+    font-size: 16px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.frame-button p {
+    margin: unset;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.store-section {
+    width: 700px;
+    overflow-y: auto;
+}
+
+.store-card {
+    height: 200px;
+    width: 382px;
+    position: relative;
+    display: flex;
+    border-radius: 8px;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #FFFFFF;
+    transition: all 0.3s ease;
+}
+
+.store-card img{
+    height: inherit;
+    margin: auto;
+    border-radius: inherit;
 }
 
 .form-box .form-logo {
@@ -199,7 +280,7 @@ input[type="checkbox"] {
     box-sizing: border-box;
 }
 
-.form-box button {
+.form-box button, .create-store-box button {
     width: 100%;
     padding: 10px;
     border: none;
@@ -232,13 +313,17 @@ input[type="checkbox"] {
     margin-top: 10px;
 }
 
+.field-hint {
+    display: block;
+}
+
 .confirmation-message {
     margin-top: 20px;
     color: green;
 }
 
 .submit-product-container {
-    max-height: 800px;
+    max-height: 1050px;
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -247,8 +332,6 @@ input[type="checkbox"] {
 }
 
 .products-section {
-    overflow-y: auto;
-    width: 700px;
     min-width: 300px;
     display: flex;
     background-color: #FFFFFF;
@@ -307,34 +390,9 @@ input[type="checkbox"] {
     cursor: pointer;
 }
 
-.product-details {
-    max-width: 50%;
-}
-
 .products-list {
     margin-top: 30px;
 }
-
-.product-price {
-    position: absolute;
-    bottom: 20px; /* Adjust this value based on your card's padding */
-    right: 20px; /* Adjust this value based on your card's padding */
-    color: #000;
-    font-weight: bold;
-  }
-
-.product-card {
-    position: relative;
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    background-color: #FFFFFF;
-    transition: all 0.3s ease;
-  }
 
 .edit-mode .product-card.deselected {
     opacity: 0.4;
@@ -408,7 +466,7 @@ input[type="checkbox"] {
         
     }
 
-    .product-form-box, .products-section {
+    .product-form-box, .store-section {
         overflow-y: unset;
         max-width: 100%;
     }
