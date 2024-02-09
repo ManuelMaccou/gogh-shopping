@@ -29,6 +29,16 @@ input[type="checkbox"] {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.neynar_signin {
+    display: flex;
+}
+
+.neynar_signin button {
+    margin: auto;
+    background: transparent;
+    border: none;
+}
+
 .logout-container button {
     font-size: 14px;
     font-weight: 700;
@@ -81,6 +91,15 @@ input[type="checkbox"] {
 .error-message {
     color: #a80000;
     margin: 10px;
+}
+
+.homepage-container .error-message {
+    color: #a80000;
+    margin: auto;
+    background: #FFFFFF;
+    border-radius: 20px;
+    width: fit-content;
+    padding: 10px;
 }
 
 .title {

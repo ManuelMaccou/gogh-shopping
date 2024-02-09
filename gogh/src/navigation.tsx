@@ -22,8 +22,6 @@ interface NavigationProps {
             <ul className="nav-links">
                 {!isLoggedIn() && (
                     <>
-                        <li><Link to="/register">Register</Link></li>
-                        <li><Link to="/login">Login</Link></li>
                     </>
                 )}
             </ul>

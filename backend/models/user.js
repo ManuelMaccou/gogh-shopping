@@ -3,11 +3,9 @@ const bcrypt = require('bcryptjs');
 const { Schema } = mongoose;
 
 const userSchema = new mongoose.Schema({
-    merchantId: { type: String, required: true, unique: true },
+    merchantId: { type: String, required: true },
     fid: { type: String, unique: false },
-    username: { type: String, required: true, unique: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    signer_uuid: { type: String },
     products: [{ type: Schema.Types.ObjectId, ref: 'product' }],
     pageId: { type: String },
     pageHtml: { type: String },

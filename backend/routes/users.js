@@ -3,53 +3,38 @@ const User = require('../models/user');
 const Store = require('../models/store');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
-const bcrypt = require('bcryptjs');
 const auth = require('../middleware/auth');
 
-router.post('/register', async (req, res) => {
+router.post('/farcaster_login', async (req, res) => {
+    const { signer_uuid, fid } = req.body;
+
+    if (!signer_uuid || !fid) {
+        return res.status(400).json({ message: "Missing signer_uuid or fid" });
+    }
+
     try {
-        const { email, password, username } = req.body;
-        let user = await User.findOne({ email });
+        let user = await User.findOne({ fid });
+
         if (user) {
-            return res.status(400).json({ message: "User already exists" });
+            const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '48h' });
+            
+            // Update signer_uuid if it has changed
+            if (user.signer_uuid !== signer_uuid) {
+                user.signer_uuid = signer_uuid;
+                await user.save();
+            }
+            res.json({ token, message: "Login successful", redirect: '/submit-product' });
+        } else {
+            // User does not exist with this fid
+            res.status(404).json({ message: "User not found. Please register." });
+            // Note: For a more seamless flow, you could automatically create a new user account here instead of showing an error message.
         }
-
-        // Generate a unique merchant ID
-        const { nanoid } = await import('nanoid');
-        const merchantId = nanoid(6);
-        const fid = nanoid(6)
-
-        user = new User({ email, password, username, merchantId, fid });
-        await user.save();
-
-        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '48h' });
-        res.status(201).json({ token });
     } catch (err) {
         console.error(err.message);
         res.status(500).send("Server error");
     }
 });
 
-router.post('/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).json({ message: "Invalid Credentials" });
-        }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ message: "Invalid Credentials" });
-        }
-
-        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '48h' });
-        res.json({ token });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send("Server error");
-    }
-});
 
 router.get('/get-page-id', auth, async (req, res) => {
     try {
