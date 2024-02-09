@@ -1,8 +1,17 @@
 const express = require('express');
 const router = express.Router();
-
 const User = require('../models/user');
 const Product = require('../models/product');
+const fs = require('fs');
+const path = require('path');
+
+const DATA_DIR = path.join(__dirname, '..', 'data');
+
+// Function to sanitize uniqueId
+const isValidUuid = (uuid) => {
+    const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return regex.test(uuid);
+};
 
 // Get a specific product by index for a user
 async function getProductAndUser(uniqueId, productIndex) {
@@ -20,6 +29,31 @@ async function getProductAndUser(uniqueId, productIndex) {
     return { product: user.products[productIndex], username: user.username };
 }
 
+// Ensure data directory exists
+if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+const appendToCSV = (filename, data) => {
+    const csvPath = path.join(DATA_DIR, `${filename}.csv`);
+    fs.appendFile(csvPath, `${data}\n`, (err) => {
+        if (err) {
+            console.error('Error appending to CSV:', err);
+        } else {
+            console.log('Data appended to CSV:', csvPath);
+        }
+    });
+};
+
+const logActionToCSV = async (uniqueId, product, page) => {
+    // Format the data as a CSV row. You might want to adjust the formatting to your needs.
+    const now = new Date().toISOString();
+    const productName = product.title.replace(/,/g, ''); // Remove commas to keep CSV format
+    const data = `${now},${productName},${page}`;
+
+    appendToCSV(uniqueId, data);
+};
+
 router.get('/frame/:uniqueId', async (req, res) => {
     const productIndex = 0; // Always show the first product initially
     const { product, username } = await getProductAndUser(req.params.uniqueId, productIndex);
@@ -32,11 +66,18 @@ router.get('/frame/:uniqueId', async (req, res) => {
 });
 
 router.post('/frame/:uniqueId', async (req, res) => {
-    console.log('Request Body:', req.body);
     const uniqueId = req.params.uniqueId;
+
+    // Validate uniqueId as a UUID at the beginning of your route handler
+    if (!isValidUuid(uniqueId)) {
+        return res.status(400).send('Invalid uniqueId format');
+    }
+
+    console.log('Request Body:', req.body);
     const buttonIndex = req.body.untrustedData.buttonIndex;
     let productIndex = parseInt(req.query.index) || 0;
     let frameType = req.query.frameType || 'productFrame';
+    let initial = req.query.initial === 'true';
 
     try {
         const user = await User.findOne({ pageId: uniqueId }).populate('products');
@@ -50,6 +91,11 @@ router.post('/frame/:uniqueId', async (req, res) => {
         if (!product) {
             return res.status(404).send('Product not found');
         }
+
+        // Log initial view of the store
+        if (initial) {
+            await logActionToCSV(uniqueId, product, "Opened store");
+        }
         
         if (frameType === 'descriptionFrame') {
             if (buttonIndex === 1) { // 'back' button
@@ -60,6 +106,9 @@ router.post('/frame/:uniqueId', async (req, res) => {
                 console.log("redirectURL:", redirectUrl)
                 if (product.url) {
                     res.setHeader('Location', redirectUrl);
+
+                    await logActionToCSV(uniqueId, product, "Buy");
+
                     // console.log('Response Headers (before sending):', res.getHeaders());
                     return res.status(302).send();
                 } else {
@@ -72,12 +121,14 @@ router.post('/frame/:uniqueId', async (req, res) => {
             // frameType is productFrame
             if (buttonIndex === 1) { // 'prev' button
                 productIndex = (productIndex - 1 + totalProducts) % totalProducts;
+
             } else if (buttonIndex === 3) { // 'next' button
                 productIndex = (productIndex + 1) % totalProducts;
+
             }
             frameType = 'productFrame';
 
-            const { product, username } = await getProductAndUser(uniqueId, productIndex);
+            const { product } = await getProductAndUser(uniqueId, productIndex);
             if (!product) {
                 return res.status(404).send('Product not found');
             }
@@ -85,6 +136,8 @@ router.post('/frame/:uniqueId', async (req, res) => {
             // Handling the 'more info' button
             if (buttonIndex === 2) {
                 frameType = 'descriptionFrame'
+
+                await logActionToCSV(uniqueId, product, "More info");
             }
         }
         // console.log('Response Headers (before sending):', res.getHeaders());

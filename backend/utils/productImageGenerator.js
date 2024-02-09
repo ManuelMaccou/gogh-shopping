@@ -8,7 +8,7 @@ async function getDominantColor(imageUrl) {
 }
 
 async function GenerateProductImage(productData) {
-    const imageUrl = productData.image; // Ensure this is the correct property name
+    const imageUrl = productData.image;
     const buffer = await Jimp.read(imageUrl).then(image => image.getBufferAsync(Jimp.MIME_PNG));
     const dominantColor = await getDominantColor(imageUrl);
     const image = await loadImage(Buffer.from(buffer));
@@ -32,16 +32,6 @@ async function GenerateProductImage(productData) {
 
     // Draw the image on the canvas
     ctx.drawImage(image, imageX, imageY, canvasImageWidth, canvasImageHeight);
-
-    // Simulate a box shadow around the image
-   /* ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
-    ctx.shadowBlur = 10;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 4;
-    ctx.beginPath();
-    ctx.rect(imageX, imageY, canvasImageWidth, canvasImageHeight);
-    ctx.stroke();
-    */
 
     // Convert canvas to data URL or save as needed
     const dataUrl = canvas.toDataURL();
