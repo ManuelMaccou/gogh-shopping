@@ -34,15 +34,24 @@ if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
 }
 
-const appendToCSV = (filename, data) => {
+const appendToCSV = async (filename, data) => {
     const csvPath = path.join(DATA_DIR, `${filename}.csv`);
-    fs.appendFile(csvPath, `${data}\n`, (err) => {
-        if (err) {
-            console.error('Error appending to CSV:', err);
-        } else {
-            console.log('Data appended to CSV:', csvPath);
-        }
-    });
+    
+    try {
+        await new Promise((resolve, reject) => {
+            fs.appendFile(csvPath, `${data}\n`, (err) => {
+                if (err) {
+                    console.error('Error appending to CSV:', err);
+                    reject(err); // Reject the promise on error
+                } else {
+                    console.log('Data appended to CSV:', csvPath);
+                    resolve(); // Resolve the promise on success
+                }
+            });
+        });
+    } catch (error) {
+        console.error("Error appending to CSV:", error);
+    }
 };
 
 const logActionToCSV = async (uniqueId, product, page) => {
@@ -94,7 +103,11 @@ router.post('/frame/:uniqueId', async (req, res) => {
 
         // Log initial view of the store
         if (initial) {
-            await logActionToCSV(uniqueId, product, "Opened store");
+            try {
+                await logActionToCSV(uniqueId, product, "Opened store");
+            } catch (error) {
+                console.error("Failed to log initial view to CSV:", error);
+            }
         }
         
         if (frameType === 'descriptionFrame') {
@@ -107,9 +120,12 @@ router.post('/frame/:uniqueId', async (req, res) => {
                 if (product.url) {
                     res.setHeader('Location', redirectUrl);
 
-                    await logActionToCSV(uniqueId, product, "Buy");
+                    try {
+                        await logActionToCSV(uniqueId, product, "Buy");
+                    } catch (error) {
+                        console.error("Failed to log buy action to CSV:", error);
+                    }
 
-                    // console.log('Response Headers (before sending):', res.getHeaders());
                     return res.status(302).send();
                 } else {
                     return res.status(404).send('Redirect URL not found');
@@ -137,7 +153,11 @@ router.post('/frame/:uniqueId', async (req, res) => {
             if (buttonIndex === 2) {
                 frameType = 'descriptionFrame'
 
-                await logActionToCSV(uniqueId, product, "More info");
+                try {
+                    await logActionToCSV(uniqueId, product, "More info");
+                } catch (error) {
+                    console.error("Failed to log more info action to CSV:", error);
+                }
             }
         }
         // console.log('Response Headers (before sending):', res.getHeaders());

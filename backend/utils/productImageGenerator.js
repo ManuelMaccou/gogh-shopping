@@ -3,8 +3,12 @@ const { createCanvas, loadImage } = require('canvas');
 
 async function getDominantColor(imageUrl) {
     const image = await Jimp.read(imageUrl);
-    const dominantColor = await image.getPixelColor(0, 0); // Simplified method to get dominant color
+    const dominantColor = await image.getPixelColor(0, 0);
     return Jimp.intToRGBA(dominantColor);
+}
+
+function isLight(r, g, b) {
+    return (r * 0.299 + g * 0.587 + b * 0.114) > 186;
 }
 
 async function GenerateProductImage(productData) {
@@ -13,27 +17,57 @@ async function GenerateProductImage(productData) {
     const dominantColor = await getDominantColor(imageUrl);
     const image = await loadImage(Buffer.from(buffer));
   
-    const margin = 15; // Margin on top and bottom
-    const canvasWidth = 1000; // Arbitrary width; adjust as needed
+    const canvasWidth = 1000;
     const canvasHeight = 524;
     const canvas = createCanvas(canvasWidth, canvasHeight);
     const ctx = canvas.getContext('2d');
 
-    // Set canvas background to dominant color
     ctx.fillStyle = `rgb(${dominantColor.r},${dominantColor.g},${dominantColor.b})`;
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-    // Calculate image dimensions to maintain aspect ratio and fit within canvas margins
-    let scaleFactor = Math.min((canvasWidth - 2 * margin) / image.width, (canvasHeight - 2 * margin) / image.height);
-    let canvasImageWidth = image.width * scaleFactor;
-    let canvasImageHeight = image.height * scaleFactor;
-    let imageX = (canvasWidth - canvasImageWidth) / 2; // Center horizontally
-    let imageY = (canvasHeight - canvasImageHeight) / 2; // Center vertically
+    // Calculate room needed for text based on an estimation
+    const textHeightEstimation = 100; // Adjust based on expected text size
+    let scaleFactor = Math.min(canvasWidth / image.width, (canvasHeight - textHeightEstimation) / image.height);
+    let imageWidth = image.width * scaleFactor;
+    let imageHeight = image.height * scaleFactor;
 
-    // Draw the image on the canvas
-    ctx.drawImage(image, imageX, imageY, canvasImageWidth, canvasImageHeight);
+    // Position the image closer to the top, leaving room for text below
+    let imageX = (canvasWidth - imageWidth) / 2;
+    let imageY = 20; // Adjust this value as needed to position the image closer to the top
 
-    // Convert canvas to data URL or save as needed
+    ctx.drawImage(image, imageX, imageY, imageWidth, imageHeight);
+
+    const textColor = isLight(dominantColor.r, dominantColor.g, dominantColor.b) ? 'black' : 'white';
+    ctx.fillStyle = textColor;
+    ctx.font = 'bold 32px Verdana';
+    ctx.textAlign = 'center';
+
+    // Calculate text position based on image position and height
+    let textX = canvasWidth / 2;
+    let textY = imageY + imageHeight + 30; // Adjust this value as needed based on the text size
+
+    // Text wrapping function, as previously described
+    const wrapText = (text, x, y, maxWidth, lineHeight) => {
+        const words = text.split(' ');
+        let line = '';
+
+        for (let n = 0; n < words.length; n++) {
+            const testLine = line + words[n] + ' ';
+            const metrics = ctx.measureText(testLine);
+            const testWidth = metrics.width;
+            if (testWidth > maxWidth && n > 0) {
+                ctx.fillText(line, x, y);
+                line = words[n] + ' ';
+                y += lineHeight;
+            } else {
+                line = testLine;
+            }
+        }
+        ctx.fillText(line, x, y);
+    };
+
+    wrapText(productData.title, textX, textY, canvasWidth - 40, 28); // Adjust as needed
+
     const dataUrl = canvas.toDataURL();
     return dataUrl;
 }
