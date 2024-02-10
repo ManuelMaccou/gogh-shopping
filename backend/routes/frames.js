@@ -29,7 +29,8 @@ async function getProductAndUser(uniqueId, productIndex) {
 
 // Ensure data directory exists
 
-const DATA_DIR = path.join(__dirname, '..', 'data');
+const BASE_DIR = process.env.BASE_DIR;
+const DATA_DIR = path.join(BASE_DIR, 'backend', 'data');
 
 const appendToCSV = async (filename, data) => {
     const csvPath = path.join(DATA_DIR, `${filename}.csv`);
@@ -172,9 +173,12 @@ router.post('/frame/:uniqueId', async (req, res) => {
 // Helper function to generate frame HTML
 function generateFrameHtml(product, username, uniqueId, productIndex, frameType = 'productFrame') {
     const postUrl = `${process.env.BASE_URL}/api/frames/frame/${uniqueId}?index=${productIndex}&frameType=${frameType}`;
+    console.log("postUrl:", postUrl);
+    
 
     // Determine which frame to show based on the frameType parameter
     const frameContent = frameType === 'descriptionFrame' ? product.descriptionFrame : product.productFrame;
+    console.log("Frame image:", frameContent.substring(frameContent.length - 30));
 
     // Dynamically set buttons based on the frameType
     let buttonsHtml = '';
