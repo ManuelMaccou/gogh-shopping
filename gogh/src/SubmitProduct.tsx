@@ -315,11 +315,6 @@ function SubmitProduct() {
                 return;
             }
 
-            if (description.length > 500) {
-                setErrorMessage("Description must be 500 characters or less.");
-                return;
-            }
-
             const decodedToken = parseJwt(token);
             const userId = decodedToken?.userId;
                 
