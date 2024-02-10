@@ -96,7 +96,7 @@ router.post('/frame/:uniqueId', async (req, res) => {
         const totalProducts = user.products.length;
         console.log("total products:", totalProducts);
 
-        const { product, username } = await getProductAndUser(uniqueId, productIndex);
+        let { product, username } = await getProductAndUser(uniqueId, productIndex);
         if (!product) {
             return res.status(404).send('Product not found');
         }
@@ -141,12 +141,19 @@ router.post('/frame/:uniqueId', async (req, res) => {
                     productIndex = (productIndex - 1 + totalProducts) % totalProducts;
 
                 } else if (buttonIndex === 3) { // 'next' button
+                    console.log("product index before change:", productIndex);
                     productIndex = (productIndex + 1) % totalProducts;
+                    console.log("product index after change:", productIndex);
 
                 }
                 frameType = 'productFrame';
 
-                const { product } = await getProductAndUser(uniqueId, productIndex);
+                console.log("product index before getProductAndUser:", productIndex);
+                let updatedProductData = await getProductAndUser(uniqueId, productIndex);
+                product = updatedProductData.product;
+                console.log("product index after getProductAndUser:", productIndex);
+                console.log("product after getProductAndUser:", product);
+
                 if (!product) {
                     return res.status(404).send('Product not found');
                 }
@@ -163,6 +170,8 @@ router.post('/frame/:uniqueId', async (req, res) => {
                 }
             }
         }
+        console.log("product index before sending response:", productIndex);
+        console.log("product before sending response:", product);
         res.status(200).send(generateFrameHtml(product, username, uniqueId, productIndex, frameType));
     } catch (err) {
         console.error('Error in POST /frame/:uniqueId', err);
