@@ -5,8 +5,6 @@ const Product = require('../models/product');
 const fs = require('fs');
 const path = require('path');
 
-const DATA_DIR = path.join(__dirname, '..', 'data');
-
 // Function to sanitize uniqueId
 const isValidUuid = (uuid) => {
     const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -30,9 +28,8 @@ async function getProductAndUser(uniqueId, productIndex) {
 }
 
 // Ensure data directory exists
-if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-}
+
+const DATA_DIR = path.join(__dirname, '..', 'data');
 
 const appendToCSV = async (filename, data) => {
     const csvPath = path.join(DATA_DIR, `${filename}.csv`);
@@ -137,7 +134,7 @@ router.post('/frame/:uniqueId', async (req, res) => {
                 console.log(`frameType: ${frameType}, buttonIndex: ${buttonIndex}`);
 
             } else {
-                
+
                 // frameType is productFrame
                 if (buttonIndex === 1) { // 'prev' button
                     productIndex = (productIndex - 1 + totalProducts) % totalProducts;
