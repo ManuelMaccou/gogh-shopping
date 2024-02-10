@@ -9,19 +9,26 @@ const HomePage = () => {
 
     const onSignInSuccess = async (data: any) => {
         console.log("Sign-in success with data:", data);
+        
         try {
             const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/farcaster_login`, {
                 signer_uuid: data.signer_uuid,
                 fid: data.fid
             });
+
             if (response.data.token) {
                 localStorage.setItem('token', response.data.token);
+
+                if (response.data.isAdmin !== undefined) {
+                    localStorage.setItem('isAdmin', JSON.stringify(response.data.isAdmin));
+                    console.log("isAdmin:", response.data.isAdmin);
+                }
                 navigate('/submit-product');
             } else {
                 // Handle the case where there is no token in the response
-                setErrorMessage("Apply to be a merchant");
+                setErrorMessage("Apply to be a merchant by DMing @manuelmaccou.eth on Warpcast");
             }
-        } catch (error: unknown) { // Notice the type here is `unknown`
+        } catch (error: unknown) {
             console.error("Error during Farcaster login:", error);
             if (axios.isAxiosError(error)) { // Type guard to narrow down to AxiosError
                 const axiosError = error as AxiosError; // Now we know it's an AxiosError

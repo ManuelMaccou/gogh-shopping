@@ -16,14 +16,14 @@ router.post('/farcaster_login', async (req, res) => {
         let user = await User.findOne({ fid });
 
         if (user) {
-            const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '48h' });
+            const token = jwt.sign({ userId: user.id, isAdmin: user.isAdmin }, process.env.JWT_SECRET, { expiresIn: '48h' });
             
             // Update signer_uuid if it has changed
             if (user.signer_uuid !== signer_uuid) {
                 user.signer_uuid = signer_uuid;
                 await user.save();
             }
-            res.json({ token, message: "Login successful", redirect: '/submit-product' });
+            res.json({ token, isAdmin: user.isAdmin, message: "Login successful", redirect: '/submit-product' });
         } else {
             // User does not exist with this fid
             res.status(404).json({ message: "User not found. Please register." });

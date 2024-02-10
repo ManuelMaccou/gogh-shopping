@@ -1,9 +1,32 @@
 const Jimp = require('jimp');
+const sharp = require('sharp');
 const { createCanvas, loadImage } = require('canvas');
 
-async function getDominantColor(imageUrl) {
-    const image = await Jimp.read(imageUrl);
-    const dominantColor = await image.getPixelColor(0, 0);
+async function fetchAndConvertImage(imageUrl) {
+    const fetch = (await import('node-fetch')).default;
+    const response = await fetch(imageUrl);
+    if (!response.ok) {
+        throw new Error(`Failed to fetch the image: ${response.statusText}`);
+    }
+    let buffer = await response.arrayBuffer();
+
+    // Use sharp to convert .webp images to .png
+    const image = await sharp(buffer);
+    const metadata = await image.metadata();
+
+    if (metadata.format === 'webp') {
+        buffer = await image.png().toBuffer();
+    } else {
+        buffer = imageUrl;
+    }
+
+    return buffer;
+}
+
+// Adjusted getDominantColor to accept a buffer
+async function getDominantColor(buffer) {
+    const image = await Jimp.read(buffer);
+    const dominantColor = image.getPixelColor(0, 0);
     return Jimp.intToRGBA(dominantColor);
 }
 
@@ -13,10 +36,10 @@ function isLight(r, g, b) {
 
 async function GenerateProductImage(productData) {
     const imageUrl = productData.image;
-    const buffer = await Jimp.read(imageUrl).then(image => image.getBufferAsync(Jimp.MIME_PNG));
-    const dominantColor = await getDominantColor(imageUrl);
-    const image = await loadImage(Buffer.from(buffer));
-  
+    const buffer = await fetchAndConvertImage(imageUrl);
+    const dominantColor = await getDominantColor(buffer);
+    const image = await loadImage(buffer);
+    
     const canvasWidth = 1000;
     const canvasHeight = 524;
     const canvas = createCanvas(canvasWidth, canvasHeight);
@@ -25,7 +48,6 @@ async function GenerateProductImage(productData) {
     ctx.fillStyle = `rgb(${dominantColor.r},${dominantColor.g},${dominantColor.b})`;
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-    // Calculate room needed for text based on an estimation
     const textHeightEstimation = 100; // Adjust based on expected text size
     let scaleFactor = Math.min(canvasWidth / image.width, (canvasHeight - textHeightEstimation) / image.height);
     let imageWidth = image.width * scaleFactor;

@@ -11,6 +11,7 @@ const productPage = require('./routes/pages');
 const metadataRoutes = require('./routes/metadata');
 // const productDb = require('./routes/productDb');
 const storeRoutes = require('./routes/stores');
+const impersonateRoutes = require('./routes/impersonate');
 
 
 require('dotenv').config();
@@ -35,6 +36,7 @@ app.use('/product-page', productPage);
 app.use('/api', metadataRoutes);
 // app.use('/api/index-csv', productDb);
 app.use('/api/stores', storeRoutes);
+app.use('/api/impersonate', impersonateRoutes)
 
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'gogh', 'build', 'index.html'));

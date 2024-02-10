@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
     merchantId: { type: String, required: true },
     fid: { type: String, unique: false },
     signer_uuid: { type: String },
+    isAdmin: { type: Boolean, default: false },
     products: [{ type: Schema.Types.ObjectId, ref: 'product' }],
     pageId: { type: String },
     pageHtml: { type: String },

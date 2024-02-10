@@ -48,7 +48,7 @@ function SubmitProduct() {
     const [errorMessage, setErrorMessage] = useState('');
 
     const maxChars = 500;
-    const maxLines = 7;
+    const maxLines = 15;
 
     const [charCount, setCharCount] = useState(0);
     const [charLimitExceeded, setCharLimitExceeded] = useState(false);
