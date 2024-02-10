@@ -85,8 +85,10 @@ router.post('/frame/:uniqueId', async (req, res) => {
     console.log('Request Body:', req.body);
     const buttonIndex = req.body.untrustedData.buttonIndex;
     let productIndex = parseInt(req.query.index) || 0;
-    let frameType = req.query.frameType || 'productFrame';
+    // let frameType = req.query.frameType || 'productFrame';
+    let frameType = req.query.frameType;
     let initial = req.query.initial === 'true';
+    console.log('Initial:', initial);
 
     try {
         const user = await User.findOne({ pageId: uniqueId }).populate('products');
@@ -103,66 +105,67 @@ router.post('/frame/:uniqueId', async (req, res) => {
 
         // Log initial view of the store
         if (initial) {
+            productIndex = 0;
             try {
                 await logActionToCSV(uniqueId, product, "Opened store");
             } catch (error) {
                 console.error("Failed to log initial view to CSV:", error);
             }
-        }
+        } else {
         
-        if (frameType === 'descriptionFrame') {
-            if (buttonIndex === 1) { // 'back' button
+            if (frameType === 'descriptionFrame') {
+                if (buttonIndex === 1) { // 'back' button
+                    frameType = 'productFrame';
+                
+                } else if (buttonIndex === 2) { // 'buy' button
+                    const redirectUrl = `${process.env.BASE_URL}/api/products/redirect/${product._id}`;
+                    console.log("redirectURL:", redirectUrl)
+                    if (product.url) {
+                        res.setHeader('Location', redirectUrl);
+
+                        try {
+                            await logActionToCSV(uniqueId, product, "Buy");
+                        } catch (error) {
+                            console.error("Failed to log buy action to CSV:", error);
+                        }
+
+                        return res.status(302).send();
+                    } else {
+                        return res.status(404).send('Redirect URL not found');
+                    }
+                }
+                console.log(`frameType: ${frameType}, buttonIndex: ${buttonIndex}`);
+
+            } else {
+                
+                // frameType is productFrame
+                if (buttonIndex === 1) { // 'prev' button
+                    productIndex = (productIndex - 1 + totalProducts) % totalProducts;
+
+                } else if (buttonIndex === 3) { // 'next' button
+                    productIndex = (productIndex + 1) % totalProducts;
+
+                }
                 frameType = 'productFrame';
-            
-            } else if (buttonIndex === 2) { // 'buy' button
-                const redirectUrl = `${process.env.BASE_URL}/api/products/redirect/${product._id}`;
-                console.log("redirectURL:", redirectUrl)
-                if (product.url) {
-                    res.setHeader('Location', redirectUrl);
+
+                const { product } = await getProductAndUser(uniqueId, productIndex);
+                if (!product) {
+                    return res.status(404).send('Product not found');
+                }
+
+                // Handling the 'more info' button
+                if (buttonIndex === 2) {
+                    frameType = 'descriptionFrame'
 
                     try {
-                        await logActionToCSV(uniqueId, product, "Buy");
+                        await logActionToCSV(uniqueId, product, "More info");
                     } catch (error) {
-                        console.error("Failed to log buy action to CSV:", error);
+                        console.error("Failed to log more info action to CSV:", error);
                     }
-
-                    return res.status(302).send();
-                } else {
-                    return res.status(404).send('Redirect URL not found');
-                }
-            }
-            console.log(`frameType: ${frameType}, buttonIndex: ${buttonIndex}`);
-
-        } else {
-            // frameType is productFrame
-            if (buttonIndex === 1) { // 'prev' button
-                productIndex = (productIndex - 1 + totalProducts) % totalProducts;
-
-            } else if (buttonIndex === 3) { // 'next' button
-                productIndex = (productIndex + 1) % totalProducts;
-
-            }
-            frameType = 'productFrame';
-
-            const { product } = await getProductAndUser(uniqueId, productIndex);
-            if (!product) {
-                return res.status(404).send('Product not found');
-            }
-
-            // Handling the 'more info' button
-            if (buttonIndex === 2) {
-                frameType = 'descriptionFrame'
-
-                try {
-                    await logActionToCSV(uniqueId, product, "More info");
-                } catch (error) {
-                    console.error("Failed to log more info action to CSV:", error);
                 }
             }
         }
-        // console.log('Response Headers (before sending):', res.getHeaders());
         res.status(200).send(generateFrameHtml(product, username, uniqueId, productIndex, frameType));
-        // console.log('Response Headers (after sending):', res.getHeaders());
     } catch (err) {
         console.error('Error in POST /frame/:uniqueId', err);
         res.status(500).send('Internal Server Error');
