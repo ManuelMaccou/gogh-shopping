@@ -62,11 +62,38 @@ router.post('/add', auth, async (req, res) => {
 
 router.put('/update/:productId', auth, async (req, res) => {
   const { productId } = req.params;
+  const productData = req.body;
   try {
-      const updatedProduct = await Product.findByIdAndUpdate(productId, req.body, { new: true });
-      res.json(updatedProduct);
+    let generatedProductImage, generatedDescriptionImage;
+
+    try {
+      generatedProductImage = await generateProductImage(productData);
+    } catch (error) {
+      console.error("Error generating product image:", error);
+      return res.status(500).send("Error generating product image");
+    }
+
+    try {
+      generatedDescriptionImage = await generateDescriptionImage(productData);
+    } catch (error) {
+      console.error("Error generating description image:", error);
+      return res.status(500).send("Error generating description image");
+    }
+
+    // Update the product data with the new image URLs
+    productData.productFrame = generatedProductImage;
+    productData.descriptionFrame = generatedDescriptionImage;
+
+    const updatedProduct = await Product.findByIdAndUpdate(productId, productData, { new: true });
+
+    if (!updatedProduct) {
+      return res.status(404).send("Product not found");
+    }
+
+    res.json(updatedProduct);
   } catch (error) {
-      res.status(500).send("Server error");
+    console.error('Error in PUT /api/products/update:', error);
+    res.status(500).send("Server error");
   }
 });
 

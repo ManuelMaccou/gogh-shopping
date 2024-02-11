@@ -180,7 +180,6 @@ function SubmitProduct() {
             if (axios.isAxiosError(error) && error.response) {
                 const message = error.response.data.message || error.response.data.error || 'An unknown error occurred';
                 console.error('Error creating the store:', message);
-                // Optionally, update your state to display the error message to the user
             } else {
                 console.error('Error creating the store:', 'An unknown error occurred');
             }
@@ -522,9 +521,6 @@ function SubmitProduct() {
                                     <button type="submit">{selectedProductForEdit ? 'Update Product' : 'Add Product'}</button>
                                     {errorMessage && <p className="error-message">{errorMessage}</p>}
                                 </form>
-                                {selectedProductForEdit && (
-                                    <button type="button" onClick={resetForm} className="cancel-edit-button">Cancel Edit</button>
-                                )}
                                 {confirmationMessage && <div className="confirmation-message">{confirmationMessage}</div>}
                         
 
