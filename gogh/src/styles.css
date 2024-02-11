@@ -228,10 +228,20 @@ input[type="checkbox"] {
     width: 40%;
 }
 
-.product-frame, .description-frame {
+.description-frame {
     width: 100%;
     height: auto;
     border-radius: 8px;
+}
+
+.product-frame {
+    aspect-ratio: 1;
+    width: 75%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+    border-radius: 8px;
+
 }
 
 .frame-preview {

@@ -15,7 +15,7 @@ async function fetchAndConvertImage(imageUrl) {
     const metadata = await image.metadata();
 
     if (metadata.format === 'webp') {
-        buffer = await image.png().toBuffer();
+        buffer = await image.jpeg({ quality: 90 }).toBuffer();
     } else {
         buffer = imageUrl;
     }
@@ -41,7 +41,7 @@ async function GenerateProductImage(productData) {
     const image = await loadImage(buffer);
     
     const canvasWidth = 1000;
-    const canvasHeight = 524;
+    const canvasHeight = 1000;
     const canvas = createCanvas(canvasWidth, canvasHeight);
     const ctx = canvas.getContext('2d');
 
@@ -90,7 +90,7 @@ async function GenerateProductImage(productData) {
 
     wrapText(productData.title, textX, textY, canvasWidth - 40, 28); // Adjust as needed
 
-    const dataUrl = canvas.toDataURL();
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
     return dataUrl;
 }
 

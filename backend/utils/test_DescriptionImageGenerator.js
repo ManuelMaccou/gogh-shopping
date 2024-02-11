@@ -12,11 +12,11 @@ async function testGenerateDescriptionImage() {
 
     try {
         const imageDataUrl = await GenerateDescriptionImage(productData, backgroundImageUrl);
-        const base64Data = imageDataUrl.replace(/^data:image\/png;base64,/, '');
+        const base64Data = imageDataUrl.replace(/^data:image\/jpeg;base64,/, '');
 
         // Save the image as a file
-        fs.writeFileSync('output.png', base64Data, 'base64');
-        console.log('Image saved as output.png');
+        fs.writeFileSync('output.jpg', base64Data, 'base64');
+        console.log('Image saved as output.jpg');
     } catch (error) {
         console.error('Error generating image:', error);
     }
