@@ -221,6 +221,7 @@ function generateFrameHtml(product, username, uniqueId, productIndex, frameType 
             <meta property="fc:frame" content="vNext" />
             <meta property="fc:frame:post_url" content="${postUrl}">
             <meta property="fc:frame:image" content="${frameContent}">
+            <meta property="fc:frame:image:aspect_ratio" content="1:1" />
             ${buttonsHtml}
         </head>
         </html>
