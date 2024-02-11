@@ -45,6 +45,7 @@ const appendToCSV = async (filename, data) => {
                     reject(err); // Reject the promise on error
                 } else {
                     console.log('Data appended to CSV:', csvPath);
+                    console.log('Data:', data);
                     resolve(); // Resolve the promise on success
                 }
             });
