@@ -60,29 +60,34 @@ router.post('/add', auth, async (req, res) => {
   }
 });
 
-router.post('/delete', auth, async (req, res) => {
-  const ObjectId = mongoose.Types.ObjectId;
-
+router.put('/update/:productId', auth, async (req, res) => {
+  const { productId } = req.params;
   try {
-    const { productIds } = req.body;
+      const updatedProduct = await Product.findByIdAndUpdate(productId, req.body, { new: true });
+      res.json(updatedProduct);
+  } catch (error) {
+      res.status(500).send("Server error");
+  }
+});
+
+router.delete('/delete/:productId', auth, async (req, res) => {
+  try {
+    const productId = req.params.productId;
     const userId = req.user;
 
-    // Convert productIds to MongoDB ObjectId types if necessary
-    const objectIds = productIds.map(id => new mongoose.Types.ObjectId(id));
-
     // Verify ownership and delete products
-    const products = await Product.find({ _id: { $in: objectIds }, user: userId });
-    if (products.length !== productIds.length) {
-        return res.status(403).json({ message: "Unauthorized action" });
-    }
+    const product = await Product.findOne({ _id: productId, user: userId });
+        if (!product) {
+            return res.status(403).json({ message: "Unauthorized action or product not found" });
+        }
 
-    // Delete products from the Product collection
-    await Product.deleteMany({ _id: { $in: objectIds } });
+    // Delete the product from the Product collection
+    await Product.deleteOne({ _id: productId });
 
-    // Remove product IDs from user's products array
-    await User.findByIdAndUpdate(userId, { $pull: { products: { $in: objectIds } } });
+    // Remove product ID from user's products array
+    await User.findByIdAndUpdate(userId, { $pull: { products: productId } });
 
-    res.json({ message: 'Products deleted successfully' });
+    res.json({ message: 'Product deleted successfully' });
   } catch (error) {
     console.error('Error in DELETE /api/products/delete:', error);
     res.status(500).send('Server error');

@@ -54,6 +54,7 @@ function SubmitProduct() {
     const [charLimitExceeded, setCharLimitExceeded] = useState(false);
     const [lineCount, setLineCount] = useState(0);
     const [lineLimitExceeded, setLineLimitExceeded] = useState(false);
+    const [selectedProductForEdit, setSelectedProductForEdit] = useState<Product | null>(null);
 
     const handleEditorChange = useCallback((content: string, editor: any) => {
         const textContent = editor.getContent({ format: "text" });
@@ -115,6 +116,34 @@ function SubmitProduct() {
     
         checkStoreExistence();
     }, [navigate]);
+
+
+    const selectProductToEdit = (product: Product) => {
+        setProductData({
+            title: product.title,
+            description: product.description,
+            image: product.image,
+            url: product.url,
+            price: product.price
+        });
+        setSelectedProductForEdit(product); // Set the selected product for editing
+    };
+
+    const resetForm = () => {
+        setProductData({
+            title: '',
+            description: '',
+            image: '',
+            url: '',
+            price: ''
+        });
+        setSelectedProductForEdit(null); // Clear the selected product for editing
+        setIsEditMode(false);
+        setErrorMessage('');
+        setConfirmationMessage('');
+        setDeletionConfirmationMessage('');
+        setDeletionErrorMessage('');
+        };
 
     const [productData, setProductData] = useState<ProductData>({
         title: '',
@@ -253,48 +282,53 @@ function SubmitProduct() {
     }, []);
 
     // States and functions from DeleteProducts
-    const [isEditMode, setIsEditMode] = useState(false);
-    const [selectedProducts, setSelectedProducts] = useState(new Set());
+    const [isEditMode, setIsEditMode] = useState(false);    
 
-    const toggleEditMode = () => setIsEditMode(!isEditMode);
-
-    const handleProductSelect = (productId: string) => {
-        const newSelectedProducts = new Set(selectedProducts);
-        if (newSelectedProducts.has(productId)) {
-            newSelectedProducts.delete(productId);
-        } else {
-            newSelectedProducts.add(productId);
+    const toggleEditMode = () => {
+    if (isEditMode) {
+            resetForm();
         }
-        setSelectedProducts(newSelectedProducts);
+        setIsEditMode(!isEditMode);
     };
 
-    const deleteSelectedProducts = async () => {
-        if (!window.confirm("Are you sure you want to delete the selected products?")) {
-            return; // Abort if the user cancels
+    const handleProductSelect = (productId: string) => {
+        const productToEdit = products.find(product => product._id === productId);
+        if (productToEdit) {
+            setProductData({
+                title: productToEdit.title,
+                description: productToEdit.description,
+                image: productToEdit.image,
+                url: productToEdit.url,
+                price: productToEdit.price
+            });
+            setSelectedProductForEdit(productToEdit);
+            setIsEditMode(true);
         }
+    };
 
-        try {
-            const productIds = Array.from(selectedProducts);
-            const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/products/delete`, 
-                                { productIds }, 
-                                { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
-            
-            if (response.status === 200) {
-                setDeletionConfirmationMessage("Products successfully deleted.");
-                setProducts(products.filter(product => !selectedProducts.has(product._id)));
-                setSelectedProducts(new Set());
-                setIsEditMode(false);
-            } else {
-                throw new Error("Deletion was not successful. Please refresh the page and try again.");
-            }
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                const message = error.response?.data?.message || "An error occurred.";
-                console.error('Error deleting products:', message);
-                setDeletionErrorMessage("Failed to delete products. Please try again later.");
-            } else {
-                console.error('Error deleting products:', error);
-                setDeletionErrorMessage("Failed to delete products. Please try again later.");
+    const deleteSelectedProduct = async () => {
+        if (selectedProductForEdit && window.confirm("Are you sure you want to delete this product?")) {
+            try {
+                const response = await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/products/delete/${selectedProductForEdit._id}`, 
+                    { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+    
+                if (response.status === 200) {
+                    setDeletionConfirmationMessage("Product successfully deleted.");
+                    // Filter out the deleted product from the products list
+                    setProducts(products.filter(product => product._id !== selectedProductForEdit._id));
+                    resetForm(); // Reset form and clear selectedProductForEdit
+                } else {
+                    throw new Error("Deletion was not successful. Please refresh the page and try again.");
+                }
+            } catch (error) {
+                if (axios.isAxiosError(error)) {
+                    const message = error.response?.data?.message || "An error occurred.";
+                    console.error('Error deleting product:', message);
+                    setDeletionErrorMessage("Failed to delete the product. Please try again later.");
+                } else {
+                    console.error('Error deleting product:', error);
+                    setDeletionErrorMessage("Failed to delete the product. Please try again later.");
+                }
             }
         }
     };
@@ -317,30 +351,37 @@ function SubmitProduct() {
 
             const decodedToken = parseJwt(token);
             const userId = decodedToken?.userId;
-                
+
             try {
+                if (selectedProductForEdit) {
+                    // Update product
+                    const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/products/update/${selectedProductForEdit._id}`, 
+                        productData,
+                        { headers: { Authorization: `Bearer ${token}` } }
+                    );
+                    const updatedProduct = response.data;
+                    setProducts(products.map(p => p._id === updatedProduct._id ? updatedProduct : p));
+                    setSelectedProductForEdit(null); // Reset selected product after update
+                    resetForm();
+                    setConfirmationMessage('Product successfully updated!');
+                } else {
 
-                const productWithUser = {
-                    ...productData,
-                    user: userId,
-                };
+                    // Add new product
+                    const productWithUser = {
+                        ...productData,
+                        user: userId,
+                    };
 
-                const response = await axios.post(
-                    `${process.env.REACT_APP_BACKEND_URL}/api/products/add`, 
-                    productWithUser,
-                    { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-                );
+                    const response = await axios.post(
+                        `${process.env.REACT_APP_BACKEND_URL}/api/products/add`, 
+                        productWithUser,
+                        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+                    );
 
-                setConfirmationMessage('Product successfully added!');
-                setProducts([...products, response.data]);
-                // Reset the form fields
-                setProductData({
-                    title: '',
-                    description: '',
-                    image: '',
-                    url: '',
-                    price: ''
-                });
+                    setConfirmationMessage('Product successfully added!');
+                    setProducts([...products, response.data]);
+                    resetForm();
+                }
             } catch (err) {
                 if (axios.isAxiosError(err)) {
                     const message = err.response?.data?.message || "An error occurred.";
@@ -407,7 +448,7 @@ function SubmitProduct() {
                     <div className="submit-product-container">
                         <div className="product-form-section">
                             <div className="product-form-box">
-                                <h2>Submit New Product</h2>
+                                <h2>{selectedProductForEdit ? 'Edit Product' : 'Submit New Product'}</h2>
                                 <form onSubmit={onSubmit} className="product-form">
 
                                     <div className="form-group">
@@ -424,6 +465,7 @@ function SubmitProduct() {
                                         <label htmlFor="description">Description:</label>
                                         <Editor
                                             apiKey={process.env.REACT_APP_TINYMCE_API_KEY}
+                                            value={productData.description}
                                             onEditorChange={handleEditorChange}
                                             init={{
                                                 height: 300,
@@ -456,6 +498,7 @@ function SubmitProduct() {
                                             value={image} 
                                             onChange={onChange}
                                         />
+                                        <span className="field-hint">Portrait or square works best.</span>
                                     </div>
                                     <div className="form-group">
                                         <label htmlFor="url">Product URL:</label>
@@ -476,9 +519,12 @@ function SubmitProduct() {
                                             onChange={onChange}
                                         />
                                     </div>
-                                    <button type="submit">Add product</button>
+                                    <button type="submit">{selectedProductForEdit ? 'Update Product' : 'Add Product'}</button>
                                     {errorMessage && <p className="error-message">{errorMessage}</p>}
                                 </form>
+                                {selectedProductForEdit && (
+                                    <button type="button" onClick={resetForm} className="cancel-edit-button">Cancel Edit</button>
+                                )}
                                 {confirmationMessage && <div className="confirmation-message">{confirmationMessage}</div>}
                         
 
@@ -506,6 +552,7 @@ function SubmitProduct() {
 
                         <div className='store-section'>
                             <h2>Store Preview</h2>
+                            <p>This is a preview of the first frame people will see when they find your store. It's set to landscape 1.91:1 by default. Message me if you need square 1:1.</p>
                             <div className='frame-preview'>
                             {stores.map(store => (
                                         <div 
@@ -520,13 +567,13 @@ function SubmitProduct() {
                                     </div>
                                 </div>
                             <div className={`products-section ${isEditMode ? 'edit-mode' : ''}`}>
-                                <h2>{isEditMode ? 'Select products to delete' : ''}</h2>
+                                <h2>{isEditMode ? 'Select products to delete or edit' : ''}</h2>
                                     <div className="deletion-buttons">
                                     {products.length > 0 && (
                                         <>
                                             <button className="edit-button" onClick={toggleEditMode}>{isEditMode ? 'Cancel' : 'Edit Products'}</button>
-                                            {isEditMode && (
-                                                <button className="delete-button" onClick={deleteSelectedProducts}>Delete Selected</button>
+                                            {isEditMode && selectedProductForEdit && (
+                                                <button className="delete-button" onClick={deleteSelectedProduct}>Delete Selected</button>
                                             )}
                                         </>
                                     )}
@@ -535,9 +582,9 @@ function SubmitProduct() {
                                 </div>
                                 {products.map(product => (
                                     <div 
-                                        className={`product-card ${isEditMode && selectedProducts.has(product._id) ? 'selected' : 'deselected'}`}
+                                    className={`product-card ${isEditMode && selectedProductForEdit && selectedProductForEdit._id === product._id ? 'selected' : 'deselected'}`}
                                         key={product._id}
-                                        onClick={() => isEditMode && handleProductSelect(product._id)} // Only handle click in edit mode
+                                        onClick={() => isEditMode && handleProductSelect(product._id)}
                                     >
                                         <div className='product-preview-card'>
                                             {product.productFrame && <img src={product.productFrame} alt={product.title} className="product-frame"/>}
