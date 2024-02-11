@@ -505,6 +505,7 @@ function SubmitProduct() {
                         </div>
 
                         <div className='store-section'>
+                            <h2>Store Preview</h2>
                             <div className='frame-preview'>
                             {stores.map(store => (
                                         <div 
@@ -514,9 +515,12 @@ function SubmitProduct() {
                                             {store.image && <img src={store.image} alt={store.storeName} className="store-image"/>}
                                         </div>
                                     ))}
+                                    <div className='frame-button'>
+                                        <p>Start Shopping</p>
+                                    </div>
                                 </div>
                             <div className={`products-section ${isEditMode ? 'edit-mode' : ''}`}>
-                                <h2>{isEditMode ? 'Select products to delete' : 'Product preview'}</h2>
+                                <h2>{isEditMode ? 'Select products to delete' : ''}</h2>
                                     <div className="deletion-buttons">
                                     {products.length > 0 && (
                                         <>
