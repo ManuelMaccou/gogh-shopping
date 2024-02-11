@@ -42,6 +42,14 @@ function parseJwt(token: string) {
     return JSON.parse(jsonPayload);
 };
 
+function appendUTMParameters(url: string, source: string = 'gogh', medium = 'farcaster') {
+    // Check if URL already has parameters
+    const hasParams = url.includes('?');
+    const utmSource = `utm_source=${encodeURIComponent(source)}`;
+    const utmMedium = `utm_medium=${encodeURIComponent(medium)}`;
+    // Append UTM parameters
+    return `${url}${hasParams ? '&' : '?'}${utmSource}&${utmMedium}`;
+}
 
 function SubmitProduct() {
     const navigate = useNavigate();
@@ -352,10 +360,17 @@ function SubmitProduct() {
             const userId = decodedToken?.userId;
 
             try {
+                const updatedURL = appendUTMParameters(productData.url);
                 if (selectedProductForEdit) {
+
                     // Update product
+                    const productUpdateData = {
+                        ...productData,
+                        url: updatedURL,
+                    };
+
                     const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/products/update/${selectedProductForEdit._id}`, 
-                        productData,
+                        productUpdateData,
                         { headers: { Authorization: `Bearer ${token}` } }
                     );
                     const updatedProduct = response.data;
@@ -368,6 +383,7 @@ function SubmitProduct() {
                     // Add new product
                     const productWithUser = {
                         ...productData,
+                        url: updatedURL,
                         user: userId,
                     };
 
