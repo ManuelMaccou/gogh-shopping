@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const Product = require('../models/product');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
@@ -60,21 +61,31 @@ router.post('/add', auth, async (req, res) => {
 });
 
 router.post('/delete', auth, async (req, res) => {
+  const ObjectId = mongoose.Types.ObjectId;
+
   try {
-      const { productIds } = req.body;
-      const userId = req.user;
+    const { productIds } = req.body;
+    const userId = req.user;
 
-      // Verify ownership and delete products
-      const products = await Product.find({ _id: { $in: productIds }, user: userId });
-      if (products.length !== productIds.length) {
-          return res.status(403).json({ message: "Unauthorized action" });
-      }
+    // Convert productIds to MongoDB ObjectId types if necessary
+    const objectIds = productIds.map(id => new mongoose.Types.ObjectId(id));
 
-      await Product.deleteMany({ _id: { $in: productIds } });
-      res.json({ message: 'Products deleted successfully' });
+    // Verify ownership and delete products
+    const products = await Product.find({ _id: { $in: objectIds }, user: userId });
+    if (products.length !== productIds.length) {
+        return res.status(403).json({ message: "Unauthorized action" });
+    }
+
+    // Delete products from the Product collection
+    await Product.deleteMany({ _id: { $in: objectIds } });
+
+    // Remove product IDs from user's products array
+    await User.findByIdAndUpdate(userId, { $pull: { products: { $in: objectIds } } });
+
+    res.json({ message: 'Products deleted successfully' });
   } catch (error) {
-      console.error('Error in DELETE /api/products/delete:', error);
-      res.status(500).send('Server error');
+    console.error('Error in DELETE /api/products/delete:', error);
+    res.status(500).send('Server error');
   }
 });
 

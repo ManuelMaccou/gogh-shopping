@@ -27,10 +27,12 @@ async function getProductAndUser(uniqueId, productIndex) {
     return { product: user.products[productIndex], username: user.username };
 }
 
-// Ensure data directory exists
+const DATA_DIR = path.join(__dirname, '..', 'data');
 
-const BASE_DIR = process.env.BASE_DIR;
-const DATA_DIR = path.join(BASE_DIR, 'backend', 'data');
+// Ensure data directory exists
+if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+}
 
 const appendToCSV = async (filename, data) => {
     const csvPath = path.join(DATA_DIR, `${filename}.csv`);
