@@ -7,13 +7,18 @@ router.post('/books', async (req, res) => {
   console.log("Input text for search:", inputText);
 
   let index = parseInt(req.query.index) || 0;
+  let initial = req.query.initial === 'true'
 
-  // Adjust index based on buttonIndex
-  if (buttonIndex === 3) {
-    index = index === 9 ? 0 : index + 1;
-  } else if (buttonIndex === 1) {
-    index = index === 0 ? 9 : index - 1;
-  }
+  if (initial) {
+    index = 0;
+  } else {
+  
+    if (buttonIndex === 3) {
+        index = index === 9 ? 0 : index + 1;
+    } else if (buttonIndex === 1) {
+        index = index === 0 ? 9 : index - 1;
+    }
+}
 
   try {
     const response = await client.searchTemplate({
@@ -67,12 +72,12 @@ function generateHTMLResponse(results, index) {
     <html>
         <head>
         <title>Gogh Books</title>
-            <meta name="description" content="A collection of books in the Gogh Mall">
-            <meta property="og:url" content="${results.productUrl}">
-            <meta property="og:image" content="${results.image}">
+            <meta name="description" content="A collection of books in the Gogh Mall" />
+            <meta property="og:url" content="${results.productUrl}" />
+            <meta property="og:image" content="${results.image}" />
             <meta property="fc:frame" content="vNext" />
-            <meta name="fc:frame:post_url" content="${process.env.BASE_URL}/api/search/books?index=${index}/>
-            <meta property="fc:frame:image" content="${results.image}">
+            <meta name="fc:frame:post_url" content="${process.env.BASE_URL}/api/search/books?index=${index}" />
+            <meta property="fc:frame:image" content="${results.image}" />
             <meta property="fc:frame:image:aspect_ratio" content="" />
             <meta property="fc:frame:button:1" content="back" />
             <meta property="fc:frame:button:2" content="next" />
