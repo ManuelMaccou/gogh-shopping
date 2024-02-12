@@ -3,22 +3,34 @@ const router = express.Router();
 const client = require('./elasticsearch-client');
 
 router.post('/books', async (req, res) => {
-  const { inputText, buttonIndex } = req.body.untrustedData;
-  console.log("Input text for search:", inputText);
+    const { inputText, buttonIndex } = req.body.untrustedData;
+    console.log("Input text for search:", inputText);
 
-  let index = parseInt(req.query.index) || 0;
-  let initial = req.query.initial === 'true'
+    let index = parseInt(req.query.index) || 0;
+    let initial = req.query.initial === 'true';
+    let query = req.query.query || inputText;
 
-  if (initial) {
-    index = 0;
-  } else {
-  
+    if (!query) {
+        const htmlContent = getResetHTML(true);
+        return res.send(htmlContent);
+      }
+
     if (buttonIndex === 3) {
-        index = index === 9 ? 0 : index + 1;
-    } else if (buttonIndex === 1) {
-        index = index === 0 ? 9 : index - 1;
+        return res.send(getResetHTML());
+      }
+
+    if (initial) {
+        index = 0;
+    } else {
+  
+        if (buttonIndex === 1) {
+            index = index === 9 ? 0 : index + 1;
+        } else if (buttonIndex === 2) {
+            index = index === 0 ? 9 : index - 1;
+        } else if (buttonIndex === 3) {
+            query = '';
+        }
     }
-}
 
   try {
     const response = await client.searchTemplate({
@@ -26,8 +38,8 @@ router.post('/books', async (req, res) => {
       body: {
         id: 'gogh-books-search-template',
         params: {
-            knn_query: inputText,
-            text_query: inputText,
+            knn_query: query,
+            text_query: query,
             k: 10,
             num_candidates: 100,
             rrf_window_size: 50,
@@ -51,20 +63,45 @@ router.post('/books', async (req, res) => {
           productUrl: selectedResult._source.product_url,
         };
   
-        // Generate HTML content based on the selected result
-        const htmlContent = generateHTMLResponse(results, index);
-  
-        res.status(200).send(htmlContent);
-      } else {
-        console.error('No hits or response is undefined');
-        res.status(404).json({ success: false, message: "No results found or query failed." });
-      }
+            // Generate HTML content based on the selected result
+            const htmlContent = generateHTMLResponse(results, index);
+    
+            res.status(200).send(htmlContent);
+        } else {
+            console.error('No hits or response is undefined');
+            res.status(404).json({ success: false, message: "No results found or query failed." });
+        }
     } catch (error) {
       console.error('Elasticsearch search error:', error);
       res.status(500).send('Internal Server Error');
     }
-  });
+});
 
+  
+function getResetHTML(useAlternateImage = false) {
+    const defaultImage = "https://aef8cbb778975f3e4df2041ad0bae1ca.cdn.bubble.io/f1707758185839x994545746657761400/book-store-frame.jpg";
+    const alternateImage = "https://media.istockphoto.com/id/505716206/vector/try-again-label.jpg";
+    const imageToUse = useAlternateImage ? alternateImage : defaultImage;
+
+    return `
+    <!DOCTYPE html>
+    <html>
+        <head>
+        <title>Gogh Books</title>
+            <meta name="description" content="A collection of books in the Gogh Mall" />
+            <meta property="og:url" content="https://www.gogh.shopping" />
+            <meta property="og:image" content="${imageToUse}" />
+            <meta property="fc:frame" content="vNext" />
+            <meta name="fc:frame:post_url" content="${process.env.BASE_URL}/api/search/books?initial=true" />
+            <meta property="fc:frame:image" content="${imageToUse}" />
+            <meta property="fc:frame:image:aspect_ratio" content="1:1" />
+            <meta property="fc:frame:button:1" content="Search" />
+            <meta property="fc:frame:input:text" content="What kind of book are you looking for?" />
+            <meta property="fc:frame:button:2" content="Browse all" />
+        </head>
+    </html>
+    `;
+}
 
 function generateHTMLResponse(results, index) {
     const htmlContent = `
@@ -76,14 +113,15 @@ function generateHTMLResponse(results, index) {
             <meta property="og:url" content="${results.productUrl}" />
             <meta property="og:image" content="${results.image}" />
             <meta property="fc:frame" content="vNext" />
-            <meta name="fc:frame:post_url" content="${process.env.BASE_URL}/api/search/books?index=${index}" />
+            <meta name="fc:frame:post_url" content="${process.env.BASE_URL}/api/search/books?index=${index}&query=${query}" />
             <meta property="fc:frame:image" content="${results.image}" />
-            <meta property="fc:frame:image:aspect_ratio" content="" />
-            <meta property="fc:frame:button:1" content="back" />
+            <meta property="fc:frame:image:aspect_ratio" content="1:1" />
+            <meta property="fc:frame:button:1" content="prev" />
             <meta property="fc:frame:button:2" content="next" />
-            <meta property="fc:frame:button:3" content="buy" />
-            <meta property="fc:frame:button:3:action" content="link" />
-            <meta property="fc:frame:button:3:target" content="${results.productUrl}" />
+            <meta property="fc:frame:button:3" content="go back" />
+            <meta property="fc:frame:button:4" content="buy" />
+            <meta property="fc:frame:button:4:action" content="link" />
+            <meta property="fc:frame:button:4:target" content="${results.productUrl}" />
         </head>
     </html>
     `;

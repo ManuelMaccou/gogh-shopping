@@ -41,7 +41,6 @@ router.get('/books', async (req, res) => {
             <meta property="fc:frame:image:aspect_ratio" content="1:1" />
             <meta property="fc:frame:button:1" content="Search" />
             <meta property="fc:frame:input:text" content="What kind of book are you looking for?" />
-            <meta property="fc:frame:button:2" content="Browse all" />
         </head>
     </html>
     `;
