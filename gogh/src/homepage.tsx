@@ -34,7 +34,7 @@ const HomePage = () => {
                 const axiosError = error as AxiosError; // Now we know it's an AxiosError
                 // Display a specific error message if the user does not exist
                 if (axiosError.response && axiosError.response.status === 404) {
-                    setErrorMessage("Apply to be a merchant by DMing @gogh on Warpcast");
+                    setErrorMessage("Apply to be a merchant by DMing @manuelmaccou.eth on Warpcast");
                 } else {
                     // Handle other types of Axios errors
                     setErrorMessage("An error occurred during the sign-in process.");
