@@ -9,7 +9,6 @@ router.get('/:uniqueId', async (req, res) => {
 
         const user = await User.findOne({ pageId: uniqueId });
         console.log("User found:", user);
-        console.log("username", user.username);
 
         if (!user) {
             console.log("No user found for Unique ID:", uniqueId);

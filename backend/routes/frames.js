@@ -29,12 +29,14 @@ async function getProductAndUser(uniqueId, productIndex) {
 
 const DATA_DIR = path.join(__dirname, '..', 'data');
 
-// Ensure data directory exists
-if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-}
+const ensureDirectoryExists = (dirPath) => {
+    if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
+    }
+};
 
 const appendToCSV = async (filename, data) => {
+    ensureDirectoryExists(DATA_DIR);
     const csvPath = path.join(DATA_DIR, `${filename}.csv`);
     
     try {
@@ -56,9 +58,8 @@ const appendToCSV = async (filename, data) => {
 };
 
 const logActionToCSV = async (uniqueId, product, page) => {
-    // Format the data as a CSV row. You might want to adjust the formatting to your needs.
     const now = new Date().toISOString();
-    const productName = product.title.replace(/,/g, ''); // Remove commas to keep CSV format
+    const productName = product.title.replace(/,/g, '');
     const data = `${now},${productName},${page}`;
 
     appendToCSV(uniqueId, data);
