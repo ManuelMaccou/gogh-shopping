@@ -229,3 +229,46 @@ function generateFrameHtml(product, username, uniqueId, productIndex, frameType 
 }
 
 module.exports = router;
+
+// "Improved" logging analytics
+/*
+const fs = require('fs');
+const path = require('path');
+
+// Assuming DATA_DIR is defined somewhere
+const DATA_DIR = './data'; // Example, adjust as necessary
+
+const appendToCSV = async (filename, data) => {
+    const csvPath = path.join(DATA_DIR, `${filename}.csv`);
+    
+    // Ensure the directory exists
+    if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+
+    try {
+        await new Promise((resolve, reject) => {
+            fs.appendFile(csvPath, `${data}\n`, (err) => {
+                if (err) {
+                    console.error('Error appending to CSV:', err);
+                    reject(err); // Reject the promise on error
+                } else {
+                    console.log('Data appended to CSV:', csvPath);
+                    resolve(); // Resolve the promise on success
+                }
+            });
+        });
+    } catch (error) {
+        console.error("Error appending to CSV:", error);
+    }
+};
+
+const logActionToCSV = async (uniqueId, product, page) => {
+    const now = new Date().toISOString();
+    const productName = product.title.replace(/,/g, ''); // Basic CSV escape
+    const data = `"${now}","${productName}","${page}"`; // Quote fields to handle commas and ensure CSV format
+
+    // Await the append operation to ensure completion before proceeding
+    await appendToCSV(uniqueId, data);
+};
+*/
