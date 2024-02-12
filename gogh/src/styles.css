@@ -292,6 +292,8 @@ input[type="checkbox"] {
 }
 
 .store-card img{
+    object-fit: cover;
+    object-position: center;
     width: 100%;
     max-height: inherit;
     margin: auto;

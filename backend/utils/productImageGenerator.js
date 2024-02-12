@@ -40,8 +40,8 @@ async function GenerateProductImage(productData) {
     const dominantColor = await getDominantColor(buffer);
     const image = await loadImage(buffer);
     
-    const canvasWidth = 1000;
-    const canvasHeight = 1000;
+    const canvasWidth = 900;
+    const canvasHeight = 700;
     const canvas = createCanvas(canvasWidth, canvasHeight);
     const ctx = canvas.getContext('2d');
 
@@ -61,7 +61,7 @@ async function GenerateProductImage(productData) {
 
     const textColor = isLight(dominantColor.r, dominantColor.g, dominantColor.b) ? 'black' : 'white';
     ctx.fillStyle = textColor;
-    ctx.font = 'bold 32px Verdana';
+    ctx.font = 'bold 26px Verdana';
     ctx.textAlign = 'center';
 
     // Calculate text position based on image position and height
