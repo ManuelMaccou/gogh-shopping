@@ -32,15 +32,15 @@ router.get('/books', async (req, res) => {
     <html>
         <head>
         <title>Gogh Books</title>
-            <meta name="description" content="A collection of books in the Gogh Mall">
-            <meta property="og:url" content="https://www.gogh.shopping">
-            <meta property="og:image" content="https://aef8cbb778975f3e4df2041ad0bae1ca.cdn.bubble.io/f1707758185839x994545746657761400/book-store-frame.jpg">
+            <meta name="description" content="A collection of books in the Gogh Mall" />
+            <meta property="og:url" content="https://www.gogh.shopping" />
+            <meta property="og:image" content="https://aef8cbb778975f3e4df2041ad0bae1ca.cdn.bubble.io/f1707758185839x994545746657761400/book-store-frame.jpg" />
             <meta property="fc:frame" content="vNext" />
-            <meta name="fc:frame:post_url" content="${process.env.BASE_URL}/api/search/books?initial=true/>
-            <meta property="fc:frame:image" content="https://aef8cbb778975f3e4df2041ad0bae1ca.cdn.bubble.io/f1707758185839x994545746657761400/book-store-frame.jpg">
+            <meta name="fc:frame:post_url" content="${process.env.BASE_URL}/api/search/books?initial=true"/>
+            <meta property="fc:frame:image" content="https://aef8cbb778975f3e4df2041ad0bae1ca.cdn.bubble.io/f1707758185839x994545746657761400/book-store-frame.jpg" />
             <meta property="fc:frame:image:aspect_ratio" content="1:1" />
             <meta property="fc:frame:button:1" content="Search" />
-            <meta property="fc:frame:input:text" content="What kind of book are you looking for?"
+            <meta property="fc:frame:input:text" content="What kind of book are you looking for?" />
             <meta property="fc:frame:button:2" content="Browse all" />
         </head>
     </html>
