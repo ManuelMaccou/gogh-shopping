@@ -57,10 +57,10 @@ const appendToCSV = async (filename, data) => {
     }
 };
 
-const logActionToCSV = async (uniqueId, product, page) => {
+const logActionToCSV = async (fid, uniqueId, product, page) => {
     const now = new Date().toISOString();
     const productName = product.title.replace(/,/g, '');
-    const data = `${now},${productName},${page}`;
+    const data = `${fid},${now},${productName},${page}`;
 
     appendToCSV(uniqueId, data);
 };
@@ -86,6 +86,7 @@ router.post('/frame/:uniqueId', async (req, res) => {
 
     console.log('Request Body:', req.body);
     const buttonIndex = req.body.untrustedData.buttonIndex;
+    const fid = req.body.untrustedData.fid
     let productIndex = parseInt(req.query.index) || 0;
     // let frameType = req.query.frameType || 'productFrame';
     let frameType = req.query.frameType;
@@ -109,7 +110,7 @@ router.post('/frame/:uniqueId', async (req, res) => {
         if (initial) {
             productIndex = 0;
             try {
-                await logActionToCSV(uniqueId, product, "Opened store");
+                await logActionToCSV(fid, uniqueId, product, "Opened store");
             } catch (error) {
                 console.error("Failed to log initial view to CSV:", error);
             }
@@ -126,7 +127,7 @@ router.post('/frame/:uniqueId', async (req, res) => {
                         res.setHeader('Location', redirectUrl);
 
                         try {
-                            await logActionToCSV(uniqueId, product, "Buy");
+                            await logActionToCSV(fid, uniqueId, product, "Buy");
                         } catch (error) {
                             console.error("Failed to log buy action to CSV:", error);
                         }
@@ -167,7 +168,7 @@ router.post('/frame/:uniqueId', async (req, res) => {
                     frameType = 'descriptionFrame'
 
                     try {
-                        await logActionToCSV(uniqueId, product, "More info");
+                        await logActionToCSV(fid, uniqueId, product, "More info");
                     } catch (error) {
                         console.error("Failed to log more info action to CSV:", error);
                     }
