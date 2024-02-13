@@ -40,7 +40,7 @@ router.get('/books', async (req, res) => {
             <meta property="fc:frame:image" content="https://aef8cbb778975f3e4df2041ad0bae1ca.cdn.bubble.io/f1707758185839x994545746657761400/book-store-frame.jpg" />
             <meta property="fc:frame:image:aspect_ratio" content="1:1" />
             <meta property="fc:frame:button:1" content="Search" />
-            <meta property="fc:frame:input:text" content="What kind of book are you looking for?" />
+            <meta property="fc:frame:input:text" content="Search books" />
         </head>
     </html>
     `;
