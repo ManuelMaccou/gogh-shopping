@@ -27,9 +27,7 @@ router.post('/books', async (req, res) => {
             index = index === 9 ? 0 : index + 1;
         } else if (buttonIndex === 2) {
             index = index === 0 ? 9 : index - 1;
-        } else if (buttonIndex === 3) {
-            query = '';
-        }
+        } 
     }
 
   try {
@@ -64,7 +62,8 @@ router.post('/books', async (req, res) => {
         };
   
             // Generate HTML content based on the selected result
-            const htmlContent = generateHTMLResponse(results, index);
+            const htmlContent = generateHTMLResponse(results, index, query);
+            console.log("htmlContent:", htmlContent)
     
             res.status(200).send(htmlContent);
         } else {
@@ -103,7 +102,7 @@ function getResetHTML(useAlternateImage = false) {
     `;
 }
 
-function generateHTMLResponse(results, index) {
+function generateHTMLResponse(results, index, query) {
     const htmlContent = `
     <!DOCTYPE html>
     <html>
