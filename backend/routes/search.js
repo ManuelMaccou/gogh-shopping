@@ -105,7 +105,7 @@ function getResetHTML(useAlternateImage = false) {
             <meta property="fc:frame:image" content="${imageToUse}" />
             <meta property="fc:frame:image:aspect_ratio" content="1:1" />
             <meta property="fc:frame:button:1" content="Search" />
-            <meta property="fc:frame:input:text" content="Search books" />
+            <meta property="fc:frame:input:text" content="Describe a book or topic" />
         </head>
     </html>
     `;
