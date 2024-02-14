@@ -88,7 +88,7 @@ router.post('/books', async (req, res) => {
 
   
 function getResetHTML(useAlternateImage = false) {
-    const defaultImage = "https://aef8cbb778975f3e4df2041ad0bae1ca.cdn.bubble.io/f1707933712452x423761188033314940/book_frame_background.jpg";
+    const defaultImage = "https://aef8cbb778975f3e4df2041ad0bae1ca.cdn.bubble.io/f1707758185839x994545746657761400/book-store-frame.jpg";
     const alternateImage = "https://aef8cbb778975f3e4df2041ad0bae1ca.cdn.bubble.io/f1707933861285x954893258473037400/try_again_book_search.jpg";
     const imageToUse = useAlternateImage ? alternateImage : defaultImage;
 
@@ -106,7 +106,6 @@ function getResetHTML(useAlternateImage = false) {
             <meta property="fc:frame:image:aspect_ratio" content="1:1" />
             <meta property="fc:frame:button:1" content="Search" />
             <meta property="fc:frame:input:text" content="Search books" />
-            <meta property="fc:frame:button:2" content="Browse all" />
         </head>
     </html>
     `;
@@ -123,7 +122,7 @@ function generateHTMLResponse(results, index, query) {
             <meta property="fc:frame" content="vNext" />
             <meta name="fc:frame:post_url" content="${process.env.BASE_URL}/api/search/books?index=${index}&query=${query}" />
             <meta property="fc:frame:image" content="${results.image}" />
-            <meta property="fc:frame:image:aspect_ratio" content="1:1" />
+            <meta property="fc:frame:image:aspect_ratio" content="" />
             <meta property="fc:frame:button:1" content="prev" />
             <meta property="fc:frame:button:2" content="next" />
             <meta property="fc:frame:button:3" content="go back" />
