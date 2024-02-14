@@ -2,9 +2,20 @@ const express = require('express');
 const router = express.Router();
 const client = require('./elasticsearch-client');
 const GenerateBookImage = require('../utils/bookImageGenerator');
+const { body, query, validationResult } = require('express-validator');
 
-router.post('/books', async (req, res) => {
-    const { inputText, buttonIndex } = req.body.untrustedData;
+router.post('/books', [
+    // Validate and sanitize the "query" parameter
+    query('query').optional().trim().escape().isString(),
+    body('untrustedData.inputText').optional().trim().escape(),
+    body('untrustedData.buttonIndex').optional().toInt(),
+  ], async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+    const { inputText, buttonIndex } = req.body.untrustedData || {};
     console.log("Input text for search:", inputText);
 
     let index = parseInt(req.query.index) || 0;
@@ -46,11 +57,8 @@ router.post('/books', async (req, res) => {
         }
       }
     });
-
-
-    console.log("Full Elasticsearch response:", response);
     
-    if (response && response && response.hits && response.hits.hits.length > index) {
+    if (response && response.hits && response.hits.hits.length > index) {
 
         const selectedResult = response.hits.hits[index];
 
