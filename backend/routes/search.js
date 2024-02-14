@@ -1,8 +1,48 @@
 const express = require('express');
 const router = express.Router();
 const client = require('./elasticsearch-client');
+const fs = require('fs');
+const path = require('path');
 const GenerateBookImage = require('../utils/bookImageGenerator');
 const { body, query, validationResult } = require('express-validator');
+
+const DATA_DIR = path.join(__dirname, '..', 'data');
+
+const ensureDirectoryExists = (dirPath) => {
+    if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
+    }
+};
+
+const appendToCSV = async (filename, data) => {
+    ensureDirectoryExists(DATA_DIR);
+    const csvPath = path.join(DATA_DIR, `${filename}.csv`);
+    
+    try {
+        await new Promise((resolve, reject) => {
+            fs.appendFile(csvPath, `${data}\n`, (err) => {
+                if (err) {
+                    console.error('Error appending to CSV:', err);
+                    reject(err); // Reject the promise on error
+                } else {
+                    console.log('Data appended to CSV:', csvPath);
+                    console.log('Data:', data);
+                    resolve(); // Resolve the promise on success
+                }
+            });
+        });
+    } catch (error) {
+        console.error("Error appending to CSV:", error);
+    }
+};
+
+const logBookQueryToCSV = async (query) => {
+    const now = new Date().toISOString();
+    const sanitizedQuery = query.replace(/[\r\n]+/g, ' ').replace(/,/g, ';');
+    const data = `"${sanitizedQuery}","${now}"`;
+
+    await appendToCSV('books_queries', data);
+};
 
 router.post('/books', [
     // Validate and sanitize the "query" parameter
@@ -26,6 +66,12 @@ router.post('/books', [
         const htmlContent = getResetHTML(true);
         return res.send(htmlContent);
       }
+
+      try {
+        await logBookQueryToCSV(queryParam);
+    } catch (error) {
+        console.error("Failed to log book query to CSV:", error);
+    }
 
     if (buttonIndex === 3) {
         return res.send(getResetHTML());
