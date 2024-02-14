@@ -84,14 +84,12 @@ router.post('/frame/:uniqueId', async (req, res) => {
         return res.status(400).send('Invalid uniqueId format');
     }
 
-    console.log('Request Body:', req.body);
     const buttonIndex = req.body.untrustedData.buttonIndex;
     const fid = req.body.untrustedData.fid
     let productIndex = parseInt(req.query.index) || 0;
     // let frameType = req.query.frameType || 'productFrame';
     let frameType = req.query.frameType;
     let initial = req.query.initial === 'true';
-    console.log('Initial:', initial);
 
     try {
         const user = await User.findOne({ pageId: uniqueId }).populate('products');
@@ -99,7 +97,6 @@ router.post('/frame/:uniqueId', async (req, res) => {
             return res.status(404).send('User not found');
         }
         const totalProducts = user.products.length;
-        console.log("total products:", totalProducts);
 
         let { product, username } = await getProductAndUser(uniqueId, productIndex);
         if (!product) {
@@ -122,7 +119,6 @@ router.post('/frame/:uniqueId', async (req, res) => {
                 
                 } else if (buttonIndex === 2) { // 'buy' button
                     const redirectUrl = `${process.env.BASE_URL}/api/products/redirect/${product._id}`;
-                    console.log("redirectURL:", redirectUrl)
                     if (product.url) {
                         res.setHeader('Location', redirectUrl);
 
@@ -137,7 +133,6 @@ router.post('/frame/:uniqueId', async (req, res) => {
                         return res.status(404).send('Redirect URL not found');
                     }
                 }
-                console.log(`frameType: ${frameType}, buttonIndex: ${buttonIndex}`);
 
             } else {
 
@@ -146,18 +141,13 @@ router.post('/frame/:uniqueId', async (req, res) => {
                     productIndex = (productIndex - 1 + totalProducts) % totalProducts;
 
                 } else if (buttonIndex === 3) { // 'next' button
-                    console.log("product index before change:", productIndex);
                     productIndex = (productIndex + 1) % totalProducts;
-                    console.log("product index after change:", productIndex);
 
                 }
                 frameType = 'productFrame';
 
-                console.log("product index before getProductAndUser:", productIndex);
                 let updatedProductData = await getProductAndUser(uniqueId, productIndex);
                 product = updatedProductData.product;
-                console.log("product index after getProductAndUser:", productIndex);
-                console.log("product after getProductAndUser:", product);
 
                 if (!product) {
                     return res.status(404).send('Product not found');
@@ -175,8 +165,6 @@ router.post('/frame/:uniqueId', async (req, res) => {
                 }
             }
         }
-        console.log("product index before sending response:", productIndex);
-        console.log("product before sending response:", product);
         res.status(200).send(generateFrameHtml(product, username, uniqueId, productIndex, frameType));
     } catch (err) {
         console.error('Error in POST /frame/:uniqueId', err);
@@ -187,12 +175,10 @@ router.post('/frame/:uniqueId', async (req, res) => {
 // Helper function to generate frame HTML
 function generateFrameHtml(product, username, uniqueId, productIndex, frameType = 'productFrame') {
     const postUrl = `${process.env.BASE_URL}/api/frames/frame/${uniqueId}?index=${productIndex}&frameType=${frameType}`;
-    console.log("postUrl:", postUrl);
     
 
     // Determine which frame to show based on the frameType parameter
     const frameContent = frameType === 'descriptionFrame' ? product.descriptionFrame : product.productFrame;
-    console.log("Frame image:", frameContent.substring(frameContent.length - 30));
 
     // Dynamically set buttons based on the frameType
     let buttonsHtml = '';
@@ -231,46 +217,3 @@ function generateFrameHtml(product, username, uniqueId, productIndex, frameType 
 }
 
 module.exports = router;
-
-// "Improved" logging analytics
-/*
-const fs = require('fs');
-const path = require('path');
-
-// Assuming DATA_DIR is defined somewhere
-const DATA_DIR = './data'; // Example, adjust as necessary
-
-const appendToCSV = async (filename, data) => {
-    const csvPath = path.join(DATA_DIR, `${filename}.csv`);
-    
-    // Ensure the directory exists
-    if (!fs.existsSync(DATA_DIR)) {
-        fs.mkdirSync(DATA_DIR, { recursive: true });
-    }
-
-    try {
-        await new Promise((resolve, reject) => {
-            fs.appendFile(csvPath, `${data}\n`, (err) => {
-                if (err) {
-                    console.error('Error appending to CSV:', err);
-                    reject(err); // Reject the promise on error
-                } else {
-                    console.log('Data appended to CSV:', csvPath);
-                    resolve(); // Resolve the promise on success
-                }
-            });
-        });
-    } catch (error) {
-        console.error("Error appending to CSV:", error);
-    }
-};
-
-const logActionToCSV = async (uniqueId, product, page) => {
-    const now = new Date().toISOString();
-    const productName = product.title.replace(/,/g, ''); // Basic CSV escape
-    const data = `"${now}","${productName}","${page}"`; // Quote fields to handle commas and ensure CSV format
-
-    // Await the append operation to ensure completion before proceeding
-    await appendToCSV(uniqueId, data);
-};
-*/

@@ -56,7 +56,6 @@ router.post('/books', [
       }
 
     const { inputText, buttonIndex } = req.body.untrustedData || {};
-    console.log("Input text for search:", inputText);
 
     let index = parseInt(req.query.index) || 0;
     let initial = req.query.initial === 'true';
@@ -68,7 +67,7 @@ router.post('/books', [
       }
 
       try {
-        await logBookQueryToCSV(queryParam);
+        await logBookQueryToCSV(query);
     } catch (error) {
         console.error("Failed to log book query to CSV:", error);
     }
@@ -127,7 +126,6 @@ router.post('/books', [
   
             // Generate HTML content based on the selected result
             const htmlContent = generateHTMLResponse(results, index, query);
-            console.log("htmlContent:", htmlContent)
     
             res.status(200).send(htmlContent);
         } else {
