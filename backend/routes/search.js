@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const client = require('./elasticsearch-client');
+const GenerateBookImage = require('../utils/bookImageGenerator');
 
 router.post('/books', async (req, res) => {
     const { inputText, buttonIndex } = req.body.untrustedData;
@@ -46,16 +47,25 @@ router.post('/books', async (req, res) => {
       }
     });
 
+
     console.log("Full Elasticsearch response:", response);
     
     if (response && response && response.hits && response.hits.hits.length > index) {
+
         const selectedResult = response.hits.hits[index];
+
+        const productData = {
+            imageUrl: selectedResult._source.image,
+            description: selectedResult._source.short_description,
+          };
+
+          const generatedImageUrl = await GenerateBookImage(productData);
   
         const results = {
           id: selectedResult._id,
           title: selectedResult._source.title,
           description: selectedResult._source.short_description,
-          image: selectedResult._source.image,
+          image: generatedImageUrl,
           author: selectedResult._source.creator,
           checkoutUrl: selectedResult._source.checkout_url,
           productUrl: selectedResult._source.product_url,
@@ -78,8 +88,8 @@ router.post('/books', async (req, res) => {
 
   
 function getResetHTML(useAlternateImage = false) {
-    const defaultImage = "https://aef8cbb778975f3e4df2041ad0bae1ca.cdn.bubble.io/f1707758185839x994545746657761400/book-store-frame.jpg";
-    const alternateImage = "https://media.istockphoto.com/id/505716206/vector/try-again-label.jpg";
+    const defaultImage = "https://aef8cbb778975f3e4df2041ad0bae1ca.cdn.bubble.io/f1707933712452x423761188033314940/book_frame_background.jpg";
+    const alternateImage = "https://aef8cbb778975f3e4df2041ad0bae1ca.cdn.bubble.io/f1707933861285x954893258473037400/try_again_book_search.jpg";
     const imageToUse = useAlternateImage ? alternateImage : defaultImage;
 
     return `
@@ -110,7 +120,6 @@ function generateHTMLResponse(results, index, query) {
         <title>Gogh Books</title>
             <meta name="description" content="A collection of books in the Gogh Mall" />
             <meta property="og:url" content="${results.productUrl}" />
-            <meta property="og:image" content="${results.image}" />
             <meta property="fc:frame" content="vNext" />
             <meta name="fc:frame:post_url" content="${process.env.BASE_URL}/api/search/books?index=${index}&query=${query}" />
             <meta property="fc:frame:image" content="${results.image}" />

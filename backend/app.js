@@ -11,7 +11,7 @@ const productPage = require('./routes/pages');
 const storePage = require('./routes/stores');
 const searchRoutes = require('./routes/search');
 const metadataRoutes = require('./routes/metadata');
-// const productDb = require('./routes/productDb');
+const productDb = require('./routes/productDb');
 const storeRoutes = require('./routes/stores');
 const impersonateRoutes = require('./routes/impersonate');
 const analyticsRoutes = require('./routes/retrieveAnalytics');
@@ -39,7 +39,7 @@ app.use('/product-page', productPage);
 app.use('/gogh-store', storePage);
 app.use('/api/search', searchRoutes);
 app.use('/api', metadataRoutes);
-// app.use('/api/index-csv', productDb);
+app.use('/api/index-csv', productDb);
 app.use('/api/stores', storeRoutes);
 app.use('/api/impersonate', impersonateRoutes)
 app.use('/api/download-csv', analyticsRoutes)
