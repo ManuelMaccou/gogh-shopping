@@ -92,11 +92,12 @@ router.post('/books', [
     }
 
     
-
-    if (buttonIndex === 1 && query) {
-        index = index === 0 ? 9 : index - 1;
-    } else if (buttonIndex === 2) {
-        index = index === 9 ? 0 : index + 1;
+    if (!initial) {
+        if (buttonIndex === 1 && query) {
+            index = index === 0 ? 9 : index - 1;
+        } else if (buttonIndex === 2) {
+            index = index === 9 ? 0 : index + 1;
+        }
     }
 
   try {
