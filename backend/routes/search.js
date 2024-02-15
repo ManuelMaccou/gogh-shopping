@@ -62,8 +62,8 @@ router.post('/books', [
     let query = req.query.query || inputText;
 
     // Define image URLs
-    const defaultImage = "https://aef8cbb778975f3e4df2041ad0bae1ca.cdn.bubble.io/f1707758185839x994545746657761400/book-store-frame.jpg";
-    const alternateImage = "https://aef8cbb778975f3e4df2041ad0bae1ca.cdn.bubble.io/f1707933861285x954893258473037400/try_again_book_search.jpg";
+    const defaultImage = "https://aef8cbb778975f3e4df2041ad0bae1ca.cdn.bubble.io/f1708021185091x477780439670159040/book-store-frame_2.jpg";
+    const alternateImage = "https://aef8cbb778975f3e4df2041ad0bae1ca.cdn.bubble.io/f1708021395943x353089813996647400/try-again-book.jpg?";
     const specialImage = "https://aef8cbb778975f3e4df2041ad0bae1ca.cdn.bubble.io/f1708015513348x700473003573649300/book_rec_image.jpg";
 
     if (initial && buttonIndex === 2) {
@@ -159,7 +159,7 @@ function getResetHTML(imageToUse) {
             <meta property="fc:frame" content="vNext" />
             <meta name="fc:frame:post_url" content="${process.env.BASE_URL}/api/search/books?initial=true" />
             <meta property="fc:frame:image" content="${imageToUse}" />
-            <meta property="fc:frame:image:aspect_ratio" content="1:1" />
+            <meta property="fc:frame:image:aspect_ratio" content="" />
             <meta property="fc:frame:input:text" content="Describe a book or topic" />
             <meta property="fc:frame:button:1" content="Search" />
             <meta property="fc:frame:button:2" content="Recommend a book" />
