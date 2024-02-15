@@ -66,14 +66,23 @@ router.post('/books', [
     const alternateImage = "https://aef8cbb778975f3e4df2041ad0bae1ca.cdn.bubble.io/f1708021395943x353089813996647400/try-again-book.jpg?";
     const specialImage = "https://aef8cbb778975f3e4df2041ad0bae1ca.cdn.bubble.io/f1708015513348x700473003573649300/book_rec_image.jpg";
 
-    if (initial && buttonIndex === 2) {
-        return res.send(getResetHTML(specialImage));
-
-    } else if (initial && buttonIndex === 1 && !query) {
-        return res.send(getResetHTML(alternateImage));
-    } else if (!initial && buttonIndex === 3) {
+    if (initial) {
+        if (buttonIndex === 2 && !query) {
+            // Scenario: initial is true, buttonIndex is 2, query is empty
+            return res.send(getResetHTML(specialImage));
+        } else if (buttonIndex === 1) {
+            if (!query) {
+                // Scenario: initial is true, buttonIndex is 1, query is empty
+                return res.send(getResetHTML(alternateImage));
+            } else {
+                // Scenario: initial is true, buttonIndex is 1, query is not empty
+                index = 0; // Reset index and proceed with full flow
+            }
+        }
+    } else if (buttonIndex === 3) {
+        // Scenario: initial is not true (or not present), and buttonIndex is 3
         return res.send(getResetHTML(defaultImage));
-      }
+    }
 
 
       try {
@@ -84,14 +93,10 @@ router.post('/books', [
 
     
 
-      if (initial && buttonIndex === 1 && query) {
-        index = 0;
-    } else if (!initial && buttonIndex === 1 && query) {
-        if (buttonIndex === 1) {
-            index = index === 9 ? 0 : index + 1;
-        } else if (buttonIndex === 2) {
-            index = index === 0 ? 9 : index - 1;
-        }
+    if (buttonIndex === 1 && query) {
+        index = index === 0 ? 9 : index - 1;
+    } else if (buttonIndex === 2) {
+        index = index === 9 ? 0 : index + 1;
     }
 
   try {
