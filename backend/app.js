@@ -15,6 +15,7 @@ const productDb = require('./routes/productDb');
 const storeRoutes = require('./routes/stores');
 const impersonateRoutes = require('./routes/impersonate');
 const analyticsRoutes = require('./routes/retrieveAnalytics');
+const shopifyRoutes = require ('./routes/shopify/products')
 
 
 require('dotenv').config();
@@ -25,10 +26,10 @@ app.use(cors());
 // Connect to Database
 connectDB();
 
-app.use(express.json());
+app.use(express.json({ verify: (req, res, buf) => { req.rawBody = buf; } }));
 
-// Serve static files from the React app
 app.use(express.static(path.join(__dirname, '..', 'gogh', 'build')));
+
 
 // Use routes
 app.use('/api/products', productRoutes);
@@ -43,6 +44,7 @@ app.use('/api/index-csv', productDb);
 app.use('/api/stores', storeRoutes);
 app.use('/api/impersonate', impersonateRoutes)
 app.use('/api/download-csv', analyticsRoutes)
+app.use('/webhooks/products', shopifyRoutes)
 
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'gogh', 'build', 'index.html'));
